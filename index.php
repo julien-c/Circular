@@ -19,7 +19,7 @@
 		</div>
 		
 		<div class="container">
-			
+			<!-- 
 			<div class="alert fade in">
 				<button type="button" class="close" data-dismiss="alert">&times;</button>
 				This post has been deleted
@@ -40,7 +40,7 @@
 				</p>
 			</div>
 			
-			
+			 -->
 			
 			<div class="composer">
 				
@@ -52,8 +52,8 @@
 				<textarea class="input-xlarge" id="textarea" rows="3" placeholder="Write your post here"></textarea>
 				
 				<div class="form-actions">
-					<button class="btn">Post now</button>
-					<button type="submit" class="btn btn-primary">Add to Tampon</button>
+					<button id="postnow" class="btn">Post now</button>
+					<button id="addtoposts" type="submit" class="btn btn-primary">Add to Tampon</button>
 				</div>
 			</div>
 			
@@ -64,71 +64,12 @@
 				<ul class="timeline">
 					<li class="heading"><h3>Today</h3></li>
 					
-					<li class="update">
-						<span class="time-due">
-							5:03 PM
-						</span>
-						<div class="update-body">
-							Just as a mother would protect her only child with her life even so let one cultivate a boundless love towards all beings.
-						</div>
-						<div class="options">
-							<div class="btn-group">
-								<a class="btn tip sort-handle" href="#" title="Drag to re-order"><i class="icon-move"></i></a>
-								<a class="btn tip" href="#" title="Post this now"><i class="icon-play-circle"></i></a>
-								<a class="btn tip" href="#" title="Delete this post"><i class="icon-remove"></i></a>
-							</div>
-						</div>
-					</li>
 					
-					<li class="update">
-						<span class="time-due">
-							7:58 PM
-						</span>
-						<div class="update-body">
-							Such is consciousness, such its origination, such its disappearance.
-						</div>
-						<div class="options">
-							<div class="btn-group">
-								<a class="btn tip sort-handle" href="#" title="Drag to re-order"><i class="icon-move"></i></a>
-								<a class="btn tip" href="#" title="Post this now"><i class="icon-play-circle"></i></a>
-								<a class="btn tip" href="#" title="Delete this post"><i class="icon-remove"></i></a>
-							</div>
-						</div>
-					</li>
 					
 					<li class="heading"><h3>Tomorrow</h3></li>
 					
-					<li class="update">
-						<span class="time-due">
-							9:06 PM
-						</span>
-						<div class="update-body">
-							Vision arose, insight arose, discernment arose, knowledge arose, illumination arose within me with regard to things never heard before
-						</div>
-						<div class="options">
-							<div class="btn-group">
-								<a class="btn tip sort-handle" href="#" title="Drag to re-order"><i class="icon-move"></i></a>
-								<a class="btn tip" href="#" title="Post this now"><i class="icon-play-circle"></i></a>
-								<a class="btn tip" href="#" title="Delete this post"><i class="icon-remove"></i></a>
-							</div>
-						</div>
-					</li>
 					
-					<li class="update">
-						<span class="time-due">
-							11:13 PM
-						</span>
-						<div class="update-body">
-							It is impossible to retain a past thought, to a seize future thought and even to hold onto a present thought.
-						</div>
-						<div class="options">
-							<div class="btn-group">
-								<a class="btn tip sort-handle" href="#" title="Drag to re-order"><i class="icon-move"></i></a>
-								<a class="btn tip" href="#" title="Post this now"><i class="icon-play-circle"></i></a>
-								<a class="btn tip" href="#" title="Delete this post"><i class="icon-remove"></i></a>
-							</div>
-						</div>
-					</li>
+					
 				</ul>
 			</div>
 			
@@ -145,9 +86,31 @@
 		
 		
 		
+		<!-- Mustache Templates -->
+		
+		<script id="tpl-post" type="text/html">
+			<li class="update" id="post-{{id}}">
+				<span class="time-due">
+					{{time}}
+				</span>
+				<div class="update-body">
+					{{content}}
+				</div>
+				<div class="options">
+					<div class="btn-group">
+						<a class="btn sort-handle" href="#" title="Drag to re-order" rel="tooltip"><i class="icon-move"></i></a>
+						<a class="btn" href="#" title="Post this now" rel="tooltip"><i class="icon-play-circle"></i></a>
+						<a class="btn" href="#" title="Delete this post" rel="tooltip"><i class="icon-remove"></i></a>
+					</div>
+				</div>
+			</li>
+		</script>
+		
+		
 		<script src="js/jquery-1.7.2.min.js"></script>
 		<script src="bootstrap/js/bootstrap.js"></script>
 		<script src="js/jquery-ui-1.8.22.custom.min.js"></script>
+		<script src="js/mustache.js"></script>
 		<script src="js/tampon.js"></script>
 	</body>
 </html>
