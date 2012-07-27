@@ -1,0 +1,85 @@
+/* Composer */
+
+.composer {
+	margin-bottom: 28px;
+}
+
+.composer textarea {
+	font-size: 18px;
+	width: 930px;
+	margin-bottom: 6px;
+}
+
+
+.composer .form-actions {
+	text-align: right;
+	margin-top: 0px;
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
+
+
+.profile.avatar span{
+	position:absolute;
+	display:block;
+	width:16px;height:16px;
+	background-image:url('../images/network-icons.png');
+	background-repeat:no-repeat;
+	right:0;
+	top:32px;
+}
+
+.profile.avatar.twitter span{
+	background-position:0 0;
+}
+
+
+.profile {
+	position: relative;
+	width: 48px;
+	height: 48px;
+	margin-bottom: 5px;
+}
+
+
+/* Timeline */
+
+ul.timeline {
+	list-style-type: none;
+}
+
+li.heading {
+	padding: 10px 0px;
+}
+
+li.update {
+	position: relative;
+	padding: 10px 170px 22px 120px;
+	border-bottom: 1px solid #EBEBEB;
+	line-height: 22px;
+	font-size: 15px;
+	font-weight: 300;
+}
+
+span.time-due {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	padding: 10px 0px;
+	color: #999;
+}
+
+div.options {
+	position: absolute;
+	top: 0px;
+	right: 20px;
+	padding: 10px 0px;
+}
+
+div.update-body {
+}
+
+li.update:hover .time-due {
+	color: #000;
+}
+
