@@ -44,8 +44,13 @@
 
 /* Timeline */
 
+.posts {
+	margin-bottom: 25px;
+}
+
 ul.timeline {
 	list-style-type: none;
+	margin-left: 0px;
 }
 
 li.heading {
@@ -54,17 +59,22 @@ li.heading {
 
 li.update {
 	position: relative;
-	padding: 10px 170px 22px 120px;
+	padding: 10px 170px 22px 140px;
 	border-bottom: 1px solid #EBEBEB;
 	line-height: 22px;
 	font-size: 15px;
 	font-weight: 300;
+	background-color: #FFF;
+}
+
+li.update:last-child {
+	border-bottom: none;
 }
 
 span.time-due {
 	position: absolute;
 	top: 0px;
-	left: 0px;
+	left: 20px;
 	padding: 10px 0px;
 	color: #999;
 }
@@ -74,12 +84,27 @@ div.options {
 	top: 0px;
 	right: 20px;
 	padding: 10px 0px;
+	opacity: 0.5;
 }
 
-div.update-body {
+li.update:hover div.options {
+	opacity: 1;
 }
 
 li.update:hover .time-due {
 	color: #000;
+}
+
+li.update:hover .update-body {
+	color: #000;
+}
+
+.ui-state-highlight {
+	background-color: #D6F2D0;
+	height: 70px;
+}
+
+.sort-handle {
+	cursor: move;
 }
 

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
+		<meta charset="utf-8">
 		<link href="bootstrap/css/bootstrap.css" rel="stylesheet">
 		<link href="css/bootstrap.my.css" rel="stylesheet">
 		<link href="css/tampon.css" rel="stylesheet">
@@ -61,7 +62,7 @@
 						</div>
 						<div class="options">
 							<div class="btn-group">
-								<a class="btn tip" href="#" title="Drag to re-order"><i class="icon-move"></i></a>
+								<a class="btn tip sort-handle" href="#" title="Drag to re-order"><i class="icon-move"></i></a>
 								<a class="btn tip" href="#" title="Post this now"><i class="icon-play-circle"></i></a>
 								<a class="btn tip" href="#" title="Delete this post"><i class="icon-remove"></i></a>
 							</div>
@@ -77,9 +78,9 @@
 						</div>
 						<div class="options">
 							<div class="btn-group">
-								<a class="btn" href="#"><i class="icon-move"></i></a>
-								<a class="btn" href="#"><i class="icon-play-circle"></i></a>
-								<a class="btn" href="#"><i class="icon-remove"></i></a>
+								<a class="btn tip sort-handle" href="#" title="Drag to re-order"><i class="icon-move"></i></a>
+								<a class="btn tip" href="#" title="Post this now"><i class="icon-play-circle"></i></a>
+								<a class="btn tip" href="#" title="Delete this post"><i class="icon-remove"></i></a>
 							</div>
 						</div>
 					</li>
@@ -95,9 +96,9 @@
 						</div>
 						<div class="options">
 							<div class="btn-group">
-								<a class="btn" href="#"><i class="icon-move"></i></a>
-								<a class="btn" href="#"><i class="icon-play-circle"></i></a>
-								<a class="btn" href="#"><i class="icon-remove"></i></a>
+								<a class="btn tip sort-handle" href="#" title="Drag to re-order"><i class="icon-move"></i></a>
+								<a class="btn tip" href="#" title="Post this now"><i class="icon-play-circle"></i></a>
+								<a class="btn tip" href="#" title="Delete this post"><i class="icon-remove"></i></a>
 							</div>
 						</div>
 					</li>
@@ -111,9 +112,9 @@
 						</div>
 						<div class="options">
 							<div class="btn-group">
-								<a class="btn" href="#"><i class="icon-move"></i></a>
-								<a class="btn" href="#"><i class="icon-play-circle"></i></a>
-								<a class="btn" href="#"><i class="icon-remove"></i></a>
+								<a class="btn tip sort-handle" href="#" title="Drag to re-order"><i class="icon-move"></i></a>
+								<a class="btn tip" href="#" title="Post this now"><i class="icon-play-circle"></i></a>
+								<a class="btn tip" href="#" title="Delete this post"><i class="icon-remove"></i></a>
 							</div>
 						</div>
 					</li>
@@ -124,7 +125,9 @@
 			<hr>
 			
 			<footer>
-				<p>Powered by <a href="http://tamponapp.com">Tampon</a></p>
+				<span>Powered by <a href="http://tamponapp.com">Tampon</a></span>
+				·
+				<span>Inspired by <a href="http://bufferapp.com">Buffer</a></span>
 			</footer>
 			
 		</div>
@@ -133,6 +136,7 @@
 		
 		<script src="js/jquery-1.7.2.min.js"></script>
 		<script src="bootstrap/js/bootstrap.js"></script>
+		<script src="js/jquery-ui-1.8.22.custom.min.js"></script>
 		<script src="js/tampon.js"></script>
 	</body>
 </html>
