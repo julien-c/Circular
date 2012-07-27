@@ -19,6 +19,17 @@
 		</div>
 		
 		<div class="container">
+			
+			<div class="alert fade in">
+				<button type="button" class="close" data-dismiss="alert">&times;</button>
+				This post has been deleted
+			</div>
+			
+			<div class="alert alert-success fade in">
+				<button type="button" class="close" data-dismiss="alert">&times;</button>
+				This post has been successfully queued to be posted to Twitter
+			</div>
+			
 			<div class="hero-unit">
 				<h1>Tampon, an open source Buffer app.</h1>
 				<p>Stock up some great tweets and have them automatically shared throughout the day.</p>
