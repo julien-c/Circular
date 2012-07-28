@@ -1,0 +1,4 @@
+Templates for process managers like upstart, supervisor, daemontools, etc, should be created here using the following variables:
+
+%1$s    The daemon name -- the name of the daemon class
+%2$s    The command to run the daemon with a pid file being written to /var/run
