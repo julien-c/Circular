@@ -1,6 +1,6 @@
 <?php
 
-namespace Examples\Tasks;
+namespace Daemon;
 
 class ParallelTasks extends \Core_Daemon
 {
@@ -38,7 +38,7 @@ class ParallelTasks extends \Core_Daemon
             $this->task(array($this, 'task_sleep'));
         }
 
-        if (mt_rand(1, 40) == 1) {
+        if (mt_rand(1, 20) == 1) {
             $sleepfor = mt_rand(60, 180);
             $this->task(new BigTask($sleepfor, "I just woke up from my {$sleepfor} second sleep"));
         }
@@ -63,13 +63,13 @@ class ParallelTasks extends \Core_Daemon
 	 */
 	protected function log_file()
 	{	
-		$dir = '/var/log/daemons/paralleltasks';
+		$dir = '/var/log/daemons/tampon';
 		if (@file_exists($dir) == false)
 			@mkdir($dir, 0777, true);
 		
 		if (@is_writable($dir) == false)
-			$dir = BASE_PATH . '/example_logs';
+			$dir = BASE_PATH . '/logs';
 		
-		return $dir . '/log_' . date('Ymd');
+		return $dir . '/daemon.log';
 	}
 }

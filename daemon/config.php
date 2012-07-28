@@ -11,11 +11,8 @@
  *
  */
 
-date_default_timezone_set('America/Los_Angeles');
 
-// The custom error handlers that ship with PHP Simple Daemon respect all PHP INI error settings.
-ini_set('error_log', '/var/log/phpcli');
-ini_set('display_errors', 0);
+
 
 // Define a simple Auto Loader:
 // Add the current application and the PHP Simple Daemon ./Core library to the existing include path
@@ -23,10 +20,13 @@ ini_set('display_errors', 0);
 define("BASE_PATH", dirname(__FILE__));
 set_include_path(implode(PATH_SEPARATOR, array(
     realpath(BASE_PATH),
-    realpath(BASE_PATH . '/../../'),
-    realpath(BASE_PATH . '/../../Core'),
+    realpath(BASE_PATH . '/..'),
+    realpath(BASE_PATH . '/../extlib/PHP-Daemon'),
+    realpath(BASE_PATH . '/../extlib/PHP-Daemon/Core'),
     get_include_path(),
 )));
+
+
 
 function __autoload($class_name)
 {

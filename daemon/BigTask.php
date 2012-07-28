@@ -1,6 +1,6 @@
 <?php
 
-namespace Examples\Tasks;
+namespace Daemon;
 
 /**
  * Demonstrate using a Core_ITask object to create a more complex task
