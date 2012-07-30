@@ -1,3 +1,6 @@
 [submodule "extlib/tmhOAuth"]
 	path = extlib/tmhOAuth
 	url = git://github.com/themattharris/tmhOAuth.git
+[submodule "extlib/PHP-Daemon"]
+	path = extlib/PHP-Daemon
+	url = git://github.com/shaneharter/PHP-Daemon.git
