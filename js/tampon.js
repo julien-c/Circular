@@ -17,10 +17,14 @@ $(document).ready(function(){
 	$("#addtoposts").click(function(){
 		
 		var post = {
-			id: "jhkkkjhkhkjhk",
 			time: "5:30 PM",
-			content: randomQuote()
+			// content: randomQuote()
+			content: "Ambition is like love, impatient both of delays and rivals. An idea that is developed and put into action is more important than an idea that exists only as an idea. Thousands of candles can be lit from a single candle, and the life of the candle will not be shortened."
 		};
+		
+		$.post("api/post.php", post);
+		
+		post.id = "jhkkkjhkhkjhk";
 		
 		var output = Mustache.render($("#tpl-post").html(), post);
 		$(".timeline").append(output);
