@@ -1,0 +1,8 @@
+<?php
+
+/* Your application credentials, from dev.twitter.com */
+
+define('CONSUMER_KEY', '');
+define('CONSUMER_SECRET', '');
+
+
