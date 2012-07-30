@@ -1,0 +1,3 @@
+[submodule "extlib/tmhOAuth"]
+	path = extlib/tmhOAuth
+	url = git://github.com/themattharris/tmhOAuth.git
