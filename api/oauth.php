@@ -1,25 +1,9 @@
 <?php
 
 /**
- * Demonstration of the OAuth authorize flow only. You would typically do this
- * when an unknown user is first using your application and you wish to make
- * requests on their behalf.
- *
- * Instead of storing the token and secret in the session you would probably
- * store them in a secure database with their logon details for your website.
- *
- * When the user next visits the site, or you wish to act on their behalf,
- * you would use those tokens and skip this entire process.
- *
- * Instructions:
- * 1) If you don't have one already, create a Twitter application on
- *      https://dev.twitter.com/apps
- * 2) From the application details page copy the consumer key and consumer
- *      secret into the place in this code marked with (YOUR_CONSUMER_KEY
- *      and YOUR_CONSUMER_SECRET)
- * 3) Visit this page using your web browser.
- *
- * @author themattharris
+ * @see tmhOAuth/examples/oauth_flow.php
+ * 
+ * We use `authenticate` instead of `authorize` so that users having already authorized the app don't have to do it again.
  */
 
 require 'config.php';
@@ -64,7 +48,7 @@ function request_token($tmhOAuth) {
 
 // Step 2: Direct the user to the authorize web page
 function authorize($tmhOAuth) {
-  $authurl = $tmhOAuth->url("oauth/authorize", '') .  "?oauth_token={$_SESSION['oauth']['oauth_token']}";
+  $authurl = $tmhOAuth->url("oauth/authenticate", '') .  "?oauth_token={$_SESSION['oauth']['oauth_token']}";
   header("Location: {$authurl}");
 
   // in case the redirect doesn't fire
