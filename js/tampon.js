@@ -26,14 +26,7 @@ $(document).ready(function(){
 				}
 			},
 			error: function(data){
-				var output = Mustache.render(
-					$("#tpl-alert").html(), 
-					{
-						"type": "alert-error",
-						"content": "Unknown Twitter API error"
-					}
-				);
-				$("#main").prepend(output);
+				new DisplayAlert({type: "alert-error", content: "Unknown Twitter API error"});
 			}
 		});
 	});
@@ -61,11 +54,43 @@ $(document).ready(function(){
 	});
 	
 	
+	/* Twitter Bootstrap JS */
+	
 	$("body").tooltip({
 		selector: '[rel=tooltip]',
 		animation: false
 	});
 	
+	var DisplayAlert = function(options){
+		var output = Mustache.render(
+			$("#tpl-alert").html(), 
+			options
+		);
+		$("#main").prepend(output);
+	};
+	
+	$("#postnow").click(function(){
+		var btn = $(this);
+		btn.button('loading');
+		setTimeout(function(){
+			btn.button('reset');
+			new DisplayAlert({type: "alert-success", content: "This post has been successfully queued to be posted to Twitter"});
+		}, 500);
+	});
+	
+	$("#savesettings").click(function(){
+		var btn = $(this);
+		btn.button('loading');
+		setTimeout(function(){
+			btn.button('reset');
+		}, 500);
+		localStorage['timezone'] = $("select.timezone").val();
+		
+	});
+	
+	
+	
+	/* jQuery UI sortable */
 	
 	$("ul.timeline").sortable({
 		items: "li.update",
@@ -73,6 +98,9 @@ $(document).ready(function(){
 		handle: ".sort-handle"
 	});
 	
+	
+	
+	/* Posts and Timeline */
 	
 	$("#addtoposts").click(function(){
 		
@@ -115,6 +143,23 @@ $(document).ready(function(){
 		return quotes[Math.floor(Math.random()*quotes.length)];
 	};
 	
+	
+	$(".deletepost").live('click', function(){
+		
+	});
+	
+	/* Settings */
+	
+	$("#addtime").click(function(){
+		var output = Mustache.render($("#tpl-time").html(), {});
+		$(".times").append(output);
+	});
+	
+	$(".send-time button.close").live('click', function(){
+		$(this).closest(".send-time").fadeOut('fast', function(){
+			$(this).remove();
+		});
+	});
 });
 
 
