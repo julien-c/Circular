@@ -84,6 +84,7 @@ span.time-due {
 	left: 20px;
 	padding: 10px 0px;
 	color: #999;
+	cursor: pointer;
 }
 
 div.options {
@@ -115,3 +116,25 @@ li.update:hover .update-body {
 	cursor: move;
 }
 
+
+/* Settings */
+
+.settings {
+	margin-bottom: 40px;
+}
+
+.schedule {
+	width: 290px;
+}
+
+.schedule select {
+	margin-right: 10px;
+}
+
+p.send-time {
+	margin-bottom: 0px;
+}
+
+p.add-new-time {
+	margin-top: 9px;
+}

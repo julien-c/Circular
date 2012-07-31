@@ -49,7 +49,17 @@ $(document).ready(function(){
 		}); 
 	});
 	
+	/* Navigation */
 	
+	$(".link-to-settings").live('click', function(){
+		$(".composer, .posts").hide();
+		$(".settings").show();
+	});
+	
+	$(".link-to-dashboard").live('click', function(){
+		$(".composer, .posts").show();
+		$(".settings").hide();
+	});
 	
 	
 	$("body").tooltip({
@@ -69,8 +79,7 @@ $(document).ready(function(){
 		
 		var post = {
 			time: "5:30 PM",
-			// content: randomQuote()
-			content: "Ambition is like love, impatient both of delays and rivals. An idea that is developed and put into action is more important than an idea that exists only as an idea. Thousands of candles can be lit from a single candle, and the life of the candle will not be shortened."
+			content: randomQuote()
 		};
 		
 		$.post("api/post.php", post);
