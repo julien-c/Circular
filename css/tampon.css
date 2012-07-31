@@ -1,7 +1,11 @@
 /* Not logged in */
 
 #spinner {
-	height: 50px;
+	height: 60px;
+}
+
+.caption {
+	padding: 9px;
 }
 
 
@@ -121,6 +125,15 @@ li.update:hover .update-body {
 
 .settings {
 	margin-bottom: 40px;
+}
+
+.settings h3 {
+	margin-top: 10px;
+	margin-bottom: 5px;
+}
+
+.timezone {
+	width: 320px;
 }
 
 .schedule {

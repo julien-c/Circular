@@ -7,7 +7,6 @@ $(document).ready(function(){
 	
 	$.get("api/oauth.php", null, function(data){
 		spinner.stop();
-		$("#spinner").hide();
 		if (data && data.id_str) {
 			// We have a signed-in Twitter user
 			$(".not-logged-in").hide();
