@@ -93,7 +93,7 @@ $(document).ready(function(){
 	/* jQuery UI sortable */
 	
 	$("ul.timeline").sortable({
-		items: "li.update",
+		items: "li.post",
 		placeholder: "ui-state-highlight",
 		handle: ".sort-handle"
 	});

@@ -68,7 +68,7 @@ li.heading {
 	padding: 10px 0px;
 }
 
-li.update {
+li.post {
 	position: relative;
 	padding: 10px 170px 22px 140px;
 	border-bottom: 1px solid #EBEBEB;
@@ -78,7 +78,7 @@ li.update {
 	background-color: #FFF;
 }
 
-li.update:last-child {
+li.post:last-child {
 	border-bottom: none;
 }
 
@@ -99,15 +99,15 @@ div.options {
 	opacity: 0.5;
 }
 
-li.update:hover div.options {
+li.post:hover div.options {
 	opacity: 1;
 }
 
-li.update:hover .time-due {
+li.post:hover .time-due {
 	color: #000;
 }
 
-li.update:hover .update-body {
+li.post:hover .update-body {
 	color: #000;
 }
 
