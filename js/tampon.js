@@ -1,5 +1,56 @@
 $(document).ready(function(){
 	
+	var spinner = new Spinner({width: 3, color: '#222', speed: 1, trail: 60, hwaccel: true}).spin($('#spinner').get(0));
+	var user;
+	
+	/* Sign in with Twitter */
+	
+	$.get("api/oauth.php", null, function(data){
+		spinner.stop();
+		$("#spinner").hide();
+		if (data && data.id_str) {
+			// We have a signed-in Twitter user
+			$(".not-logged-in").hide();
+			$(".logged-in").show();
+			user = data;
+			$(".avatar img", ".composer").attr('src', user.profile_image_url).attr('title', user.name);
+		}
+	});
+	
+	
+	$(".signin").click(function(){
+		$.ajax({
+			url: "api/oauth.php?start=1", 
+			success: function(data){
+				if (data && data.authurl) {
+					window.location = data.authurl;
+				}
+			},
+			error: function(data){
+				var output = Mustache.render(
+					$("#tpl-alert").html(), 
+					{
+						"type": "alert-error",
+						"content": "Unknown Twitter API error"
+					}
+				);
+				$("#main").prepend(output);
+			}
+		});
+	});
+	
+	$(".logout").click(function(e){
+		e.preventDefault();
+		$.ajax({
+			url: "api/oauth.php?wipe=1",
+			success: function(){
+				window.location.reload();
+			}
+		}); 
+	});
+	
+	
+	
 	
 	$("body").tooltip({
 		selector: '[rel=tooltip]',

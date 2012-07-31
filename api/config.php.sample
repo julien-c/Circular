@@ -5,4 +5,6 @@
 define('CONSUMER_KEY', '');
 define('CONSUMER_SECRET', '');
 
+/* The URL you're serving the App from */
 
+define('APP_URL', 'http://tamponapp.com/');
