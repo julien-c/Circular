@@ -78,15 +78,7 @@ $(document).ready(function(){
 		}, 500);
 	});
 	
-	$("#savesettings").click(function(){
-		var btn = $(this);
-		btn.button('loading');
-		setTimeout(function(){
-			btn.button('reset');
-		}, 500);
-		localStorage['timezone'] = $("select.timezone").val();
-		
-	});
+	
 	
 	
 	
@@ -144,22 +136,107 @@ $(document).ready(function(){
 	};
 	
 	
-	$(".deletepost").live('click', function(){
-		
+	$(".deletepost").live('click', function(e){
+		e.preventDefault();
+		$(this).tooltip('hide');
+		$(this).closest("li.post").fadeOut('fast', function(){
+			$(this).remove();
+		});
+		new DisplayAlert({type: "", content: "This post has been deleted"});
 	});
+	
+	
+	
 	
 	/* Settings */
 	
-	$("#addtime").click(function(){
+	$("#addtime").click(function(e){
+		e.preventDefault();
 		var output = Mustache.render($("#tpl-time").html(), {});
 		$(".times").append(output);
 	});
 	
-	$(".send-time button.close").live('click', function(){
+	$(".send-time button.close").live('click', function(e){
+		e.preventDefault();
 		$(this).closest(".send-time").fadeOut('fast', function(){
 			$(this).remove();
 		});
 	});
+	
+	var initSettings = function(){
+		// Defaults:
+		if (localStorage['timezone'] == null) {
+			// Automatic Timezone Detection
+			var timezone = jstz.determine();
+			localStorage['timezone'] = timezone.name();
+		}
+		
+		if (localStorage['times'] == null) {
+			// Like Buffer, we create 4 random times, 2 in the AM, 2 in the PM
+			var times = [
+				{hour:9,  minute:Math.floor(Math.random()*60), ampm:"am"},
+				{hour:11, minute:Math.floor(Math.random()*60), ampm:"am"},
+				{hour:3,  minute:Math.floor(Math.random()*60), ampm:"pm"},
+				{hour:5,  minute:Math.floor(Math.random()*60), ampm:"pm"}
+			];
+			
+			localStorage['times'] = JSON.stringify(times);
+		}
+		
+		// Finally, set frontend to current values:
+		$("select.timezone").val(localStorage['timezone']);
+		displayTimes();
+	};
+	
+	initSettings();
+	
+	
+	function displayTimes(){
+		// First clear times (as we use this function when refreshing times after saving):
+		$(".times").empty();
+		
+		var times = JSON.parse(localStorage['times']);
+		_.each(times, function(time){
+			console.log(SecondsFromTime(time));
+			var output = Mustache.render($("#tpl-time").html(), {});
+			var out = $(output);
+			$("select.hour", out).val(time.hour);
+			$("select.minute", out).val(time.minute);
+			$("select.ampm", out).val(time.ampm);
+			$(".times").append(out);
+		});
+	}
+	
+	$("#savesettings").click(function(){
+		var btn = $(this);
+		btn.button('loading');
+		setTimeout(function(){
+			btn.button('reset');
+		}, 500);
+		
+		// Actual saving:
+		localStorage['timezone'] = $("select.timezone").val();
+		var times = [];
+		$("p.send-time").each(function(){
+			times.push({
+				hour:   $(this).find("select.hour").val(),
+				minute: $(this).find("select.minute").val(),
+				ampm:   $(this).find("select.ampm").val(),
+			});
+		});
+		// Store times sorted by chronological order:
+		times = _.sortBy(times, SecondsFromTime);
+		localStorage['times'] = JSON.stringify(times);
+		displayTimes();
+	});
+	
+	function SecondsFromTime(time){
+		var seconds = time.minute*60 + time.hour*60*60;
+		if (time.ampm == "pm") {
+			seconds += 12*60*60;
+		}
+		return seconds;
+	}
 });
 
 
