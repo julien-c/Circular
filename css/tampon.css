@@ -132,8 +132,8 @@ li.update:hover .update-body {
 	margin-bottom: 5px;
 }
 
-.timezone {
-	width: 320px;
+select.timezone {
+	width: 330px;
 }
 
 .schedule {
@@ -151,3 +151,4 @@ p.send-time {
 p.add-new-time {
 	margin-top: 9px;
 }
+
