@@ -100,8 +100,8 @@ $(document).ready(function(){
 	$("#addtoposts").click(function(){
 		
 		var post = {
-			time: "5:30 PM",
 			content: randomQuote()
+			// We just set the content now, the time will be set after refreshing posting times
 		};
 		
 		$.post("api/post.php", post, function(data){
@@ -109,6 +109,8 @@ $(document).ready(function(){
 			var output = Mustache.render($("#tpl-post").html(), post);
 			$(".timeline").append(output);
 			refreshPostingTimes();
+		}, "json").error(function(){
+			new DisplayAlert({type: "alert-error", content: "Something went wrong while saving your post..."});
 		});
 		
 	});
@@ -305,7 +307,6 @@ $(document).ready(function(){
 			// We use the fact that this method "expands" parameters.
 			// @todo: Check that this is documented and standard.
 			var timestamp = generateUnixTimestamp(then);
-			console.log(timestamp);
 			$(this).attr("data-timestamp", timestamp);
 			
 			i++;
@@ -321,7 +322,10 @@ $(document).ready(function(){
 			});
 		});
 		
-		console.log(posts);
+		
+		$.post("api/times.php", {posts: posts}, null, "json").error(function(){
+			new DisplayAlert({type: "alert-error", content: "Something went wrong while updating your posts..."});
+		});
 	}
 	
 	
