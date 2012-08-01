@@ -90,6 +90,9 @@ $(document).ready(function(){
 		handle: ".sort-handle"
 	});
 	
+	$("ul.timeline").bind("sortstop", function(){
+		refreshPostingTimes();
+	});
 	
 	
 	/* Posts and Timeline */
@@ -101,12 +104,13 @@ $(document).ready(function(){
 			content: randomQuote()
 		};
 		
-		$.post("api/post.php", post);
+		$.post("api/post.php", post, function(data){
+			post.id = data.id;
+			var output = Mustache.render($("#tpl-post").html(), post);
+			$(".timeline").append(output);
+			refreshPostingTimes();
+		});
 		
-		post.id = "jhkkkjhkhkjhk";
-		
-		var output = Mustache.render($("#tpl-post").html(), post);
-		$(".timeline").append(output);
 	});
 	
 	
@@ -192,7 +196,7 @@ $(document).ready(function(){
 	
 	
 	function displayTimes(){
-		// First clear times (as we use this function when refreshing times after saving):
+		// First clear displayed times (as we use this function when refreshing times after saving):
 		$(".times").empty();
 		
 		var times = JSON.parse(localStorage['times']);
@@ -226,7 +230,10 @@ $(document).ready(function(){
 		// Store times sorted by chronological order:
 		times = _.sortBy(times, SecondsFromTime);
 		localStorage['times'] = JSON.stringify(times);
+		// Refresh displayed times in Settings:
 		displayTimes();
+		// Refresh posting times in the Timeline view:
+		refreshPostingTimes();
 	});
 	
 	function SecondsFromTime(time){
@@ -236,6 +243,68 @@ $(document).ready(function(){
 		}
 		return seconds;
 	}
+	
+	function formatTime(time){
+		return time.hour + ":" + time.minute + " " + time.ampm;
+	}
+	
+	function formatDay(day){
+		var heading;
+		if (day == 1){
+			heading = "Tomorrow";
+		}
+		else {
+			var date = new Date(+new Date + 1000*60*60*24*day);
+			var DaysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+			var DaysOfMonth = ["","1st","2nd","3rd","4th","5th","6th","7th","8th","9th","10th","11th","12th","13th","14th","15th","16th","17th","18th","19th","20th","21st","22nd","23rd","24th","25th","26th","27th","28th","29th","30th","31st"];
+			var Months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+			heading = DaysOfWeek[date.getDay()] + " " + DaysOfMonth[date.getDate()] + " " + Months[date.getMonth()];
+		}
+		return '<li class="heading"><h3>' + heading + '</h3></li>';
+	}
+	
+	function refreshPostingTimes(){
+		// Temporary DOM adapter (should go when moving to Backbone):
+		var posts = [];
+		$(".timeline li.post").each(function(){
+			posts.push({
+				id:   $(this).attr('data-id')
+			});
+		});
+		
+		var now = {};
+		var date = new Date();
+		if (date.getHours() >= 12) {
+			now.hour = date.getHours() - 12;
+			now.minute = date.getMinutes();
+			now.ampm = "pm";
+		}
+		else {
+			now.hour = date.getHours();
+			now.minute = date.getMinutes();
+			now.ampm = "am";
+		}
+		
+		var times = JSON.parse(localStorage['times']);
+		// Let's find which scheduled time is the next one:
+		var i = _.sortedIndex(_.map(times, SecondsFromTime), SecondsFromTime(now));
+		// So times[i] is the next scheduled time.
+		// More precisely: times[i % times.length]
+		
+		// Let's also clear the Date headers (except Today which should always be here):
+		$(".timeline li.heading").not(".today").remove();
+		var day = 0;
+		
+		$(".timeline li.post").each(function(){
+			if ((i > 0) && (i % times.length == 0)){
+				day++;
+				$(this).before(formatDay(day));
+			}
+			$(".time-due", this).text(formatTime(times[i % times.length]));
+			i++;
+		});
+	}
+	
 });
 
 

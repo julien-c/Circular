@@ -99,7 +99,7 @@
 					<h2>Pending posts</h2>
 					
 					<ul class="timeline">
-						<li class="heading"><h3>Today</h3></li>
+						<li class="heading today"><h3>Today</h3></li>
 						
 						
 					</ul>
@@ -146,7 +146,7 @@
 		<!-- Mustache Templates -->
 		
 		<script id="tpl-post" type="text/html">
-			<li class="post" id="post-{{id}}">
+			<li class="post" id="post-{{id}}" data-id="{{id}}">
 				<span class="time-due link-to-settings" title="Click to change your times" rel="tooltip">
 					{{time}}
 				</span>
