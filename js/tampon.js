@@ -228,7 +228,7 @@ $(document).ready(function(){
 			});
 		});
 		// Store times sorted by chronological order:
-		times = _.sortBy(times, SecondsFromTime);
+		times = _.sortBy(times, SecondsFrom12HourTime);
 		localStorage['times'] = JSON.stringify(times);
 		// Refresh displayed times in Settings:
 		displayTimes();
@@ -236,16 +236,27 @@ $(document).ready(function(){
 		refreshPostingTimes();
 	});
 	
-	function SecondsFromTime(time){
-		var seconds = time.minute*60 + time.hour*60*60;
+	function SecondsFrom12HourTime(time){
+		// 12am = Midnight, 1am, ..., 12pm = Noon, 1pm, ...
+		// @see http://en.wikipedia.org/wiki/12-hour_clock
+		var hour = time.hour % 12;
+		var seconds = time.minute*60 + hour*60*60;
 		if (time.ampm == "pm") {
 			seconds += 12*60*60;
 		}
 		return seconds;
 	}
 	
+	function SecondsFrom24HourTime(time){
+		return time.minute*60 + time.hour*60*60;
+	}
+	
 	function formatTime(time){
-		return time.hour + ":" + time.minute + " " + time.ampm;
+		var minute = time.minute;
+		if (minute < 10) {
+			minute = '0' + minute;
+		}
+		return time.hour + ":" + minute + " " + time.ampm;
 	}
 	
 	function formatDay(day){
@@ -272,22 +283,16 @@ $(document).ready(function(){
 			});
 		});
 		
-		var now = {};
 		var date = new Date();
-		if (date.getHours() >= 12) {
-			now.hour = date.getHours() - 12;
-			now.minute = date.getMinutes();
-			now.ampm = "pm";
-		}
-		else {
-			now.hour = date.getHours();
-			now.minute = date.getMinutes();
-			now.ampm = "am";
-		}
+		var now = SecondsFrom24HourTime({
+			hour: date.getHours(),
+			minute: date.getMinutes()
+		});
+		
 		
 		var times = JSON.parse(localStorage['times']);
 		// Let's find which scheduled time is the next one:
-		var i = _.sortedIndex(_.map(times, SecondsFromTime), SecondsFromTime(now));
+		var i = _.sortedIndex(_.map(times, SecondsFrom12HourTime), now);
 		// So times[i] is the next scheduled time.
 		// More precisely: times[i % times.length]
 		
