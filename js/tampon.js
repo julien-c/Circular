@@ -275,13 +275,6 @@ $(document).ready(function(){
 	}
 	
 	function refreshPostingTimes(){
-		// Temporary DOM adapter (should go when moving to Backbone):
-		var posts = [];
-		$(".timeline li.post").each(function(){
-			posts.push({
-				id:   $(this).attr('data-id')
-			});
-		});
 		
 		var date = new Date();
 		var now = SecondsFrom24HourTime({
@@ -306,8 +299,35 @@ $(document).ready(function(){
 				$(this).before(formatDay(day));
 			}
 			$(".time-due", this).text(formatTime(times[i % times.length]));
+			
+			// Now compute the UNIX timestamp for this time:
+			var then = new Date(date.getFullYear(), date.getMonth(), date.getDate() + day, 0, 0, SecondsFrom12HourTime(times[i % times.length]));
+			// We use the fact that this method "expands" parameters.
+			// @todo: Check that this is documented and standard.
+			var timestamp = generateUnixTimestamp(then);
+			console.log(timestamp);
+			$(this).attr("data-timestamp", timestamp);
+			
 			i++;
 		});
+		
+		
+		// Temporary DOM adapter (should go when moving to Backbone):
+		var posts = [];
+		$(".timeline li.post").each(function(){
+			posts.push({
+				id:          $(this).attr('data-id'),
+				timestamp:   $(this).attr('data-timestamp')
+			});
+		});
+		
+		console.log(posts);
+	}
+	
+	
+	function generateUnixTimestamp(date){
+		var utc = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds());
+		return Math.floor(utc / 1000);
 	}
 	
 });
