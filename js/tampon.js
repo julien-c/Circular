@@ -197,7 +197,6 @@ $(document).ready(function(){
 		
 		var times = JSON.parse(localStorage['times']);
 		_.each(times, function(time){
-			console.log(SecondsFromTime(time));
 			var output = Mustache.render($("#tpl-time").html(), {});
 			var out = $(output);
 			$("select.hour", out).val(time.hour);
