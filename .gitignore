@@ -2,3 +2,5 @@
 Daemon/logs/daemon.log
 
 api/config.php
+
+*.daemon_lock
