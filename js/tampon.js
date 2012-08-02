@@ -97,10 +97,20 @@ $(document).ready(function(){
 	
 	/* Posts and Timeline */
 	
+	$("#textarea").bind('keydown', 'meta+return', function(){
+		$("#addtoposts").click();
+	});
+	
 	$("#addtoposts").click(function(){
 		
+		var content = $("#textarea").val();
+		if (content == "") {
+			content = randomQuote();
+		}
+		
+		
 		var post = {
-			content:          randomQuote(),
+			content:          content,
 			user_id:          user.id,
 			user_screen_name: user.screen_name
 			// We don't set the time now as it will be set after refreshing posting times
@@ -111,6 +121,8 @@ $(document).ready(function(){
 			var output = Mustache.render($("#tpl-post").html(), post);
 			$(".timeline").append(output);
 			refreshPostingTimes();
+			// Finally, clear textarea:
+			$("#textarea").val("");
 		}, "json").error(function(){
 			new DisplayAlert({type: "alert-error", content: "Something went wrong while saving your post..."});
 		});
