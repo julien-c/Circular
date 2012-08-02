@@ -2,7 +2,15 @@
 
 namespace Daemon;
 
-
+// 
+// 
+// WARNING:
+// 
+// Not used right now because of a MongoDB PHP driver bug...
+// @see  https://jira.mongodb.org/browse/PHP-446
+// 
+// 
+// 
 
 require BASE_PATH . '/../extlib/tmhOAuth/tmhOAuth.php';
 require BASE_PATH . '/../extlib/tmhOAuth/tmhUtilities.php';
@@ -59,10 +67,7 @@ class SendPostTask implements \Core_ITask
         
         // Send to Twitter:
         $tmhOAuth = new \tmhOAuth(array(
-            'consumer_key'    => 'ezBlkR7hAZ031y6CPA2jw',
-            'consumer_secret' => 'L1TFML6NE6F0ZwA1HrewBl3OybmsGCizB1G2kt5M',
-            'user_token'      => '713964546-abjJygwQcFMzwk6yyqt7AFcJJiZRNFHlcihuBRY0',
-            'user_secret'     => 'IMZ6zN1MltAZo5FS2qa9g6DtJ4m7skkmg2dXLMAjEc',
+            /* Credentials */
         ));
         
         $code = $tmhOAuth->request('POST', $tmhOAuth->url('1/statuses/update'), array(

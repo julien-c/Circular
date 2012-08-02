@@ -4,17 +4,19 @@ namespace Daemon;
 
 require BASE_PATH . '/../extlib/tmhOAuth/tmhOAuth.php';
 require BASE_PATH . '/../extlib/tmhOAuth/tmhUtilities.php';
+require BASE_PATH . '/../api/config.php';
+
 
 class ParallelTasks extends \Core_Daemon
 {
-    protected  $loop_interval = 5;
+	protected  $loop_interval = 5;
 
-    /**
-     * The only plugin we're using is a simple file-based lock to prevent 2 instances from running
-     */
+	/**
+	 * The only plugin we're using is a simple file-based lock to prevent 2 instances from running
+	 */
 	protected function setup_plugins()
 	{
-        $this->plugin('Lock_File');
+		$this->plugin('Lock_File');
 	}
 	
 	/**
@@ -35,77 +37,92 @@ class ParallelTasks extends \Core_Daemon
 	 */
 	protected function execute()
 	{
+		$currentUnixTime = self::getCurrentUnixTimestamp();
+		
+		
+		
 		$m = new \Mongo();
-		$posts = $m->tampon->posts->find();
 		
 		
-		// We can't use Task process forking for now because of a MongoDB PHP driver bug...
-		// @see  https://jira.mongodb.org/browse/PHP-377
+		// Step 1: move to the sending queue (`queue`) all posts (`posts`) that were scheduled to be sent before now.
+		$posts = $m->tampon->posts->find(array('time' => array('$lte' => new \MongoDate($currentUnixTime))));
+		
+		foreach ($posts as $post) {
+			$m->tampon->queue->insert($post);
+			$m->tampon->posts->remove(array('_id' => $post['_id']));
+			$this->log(sprintf(
+				"Moved scheduled post %s to sending queue", 
+				$post['_id']
+			));
+		}
 		
 		
+		// Step 2: send queued posts (`queue`) to Twitter and move them to `archive`.
+		$posts = $m->tampon->queue->find();
 		
 		foreach ($posts as $post) {
 			
 			// We use a "processing" flag to not try to send the same post multiple times (as tasks are asynchronous)
+			// (or should be, anyways)
 			
 			if (!isset($post['processing'])) {
 				
 				$post['processing'] = true;
-				$post['processing_since'] = time();
-				$m->tampon->posts->update(array('_id' => $post['_id']), $post);
+				$post['processing_since'] = self::getCurrentUnixTimestamp();
+				$m->tampon->queue->update(array('_id' => $post['_id']), $post);
 				
-				// We can't use this right now (MongoDB PHP driver bug):
-			    // $this->task(new SendPostTask($post));
-			    
-			    // --start temp code
-			    
-			    
-			    // Send to Twitter:
-		        $tmhOAuth = new \tmhOAuth(array(
-		            'consumer_key'    => 'ezBlkR7hAZ031y6CPA2jw',
-		            'consumer_secret' => 'L1TFML6NE6F0ZwA1HrewBl3OybmsGCizB1G2kt5M',
-		            'user_token'      => '713964546-abjJygwQcFMzwk6yyqt7AFcJJiZRNFHlcihuBRY0',
-		            'user_secret'     => 'IMZ6zN1MltAZo5FS2qa9g6DtJ4m7skkmg2dXLMAjEc',
-		        ));
-		        
-		        $code = $tmhOAuth->request('POST', $tmhOAuth->url('1/statuses/update'), array(
-		            'status' => $post['content']
-		        ));
-		        
-		        // There is no special handling of API errors.
-		        // Right now we just dump the response to MongoDB
-		        
-		        $post['code'] = $code;
-		        $post['response'] = json_decode($tmhOAuth->response['response'], true);
-		        
-		        // Move this post to another collection named archive:
-		        unset($post['processing']);
-		        unset($post['processing_time']);
-		        $m = new \Mongo();
-		        $m->tampon->archive->insert($post);
-		        $m->tampon->posts->remove(array('_id' => $post['_id']));
-		        
-		        if ($code == 200) {
-		            $this->log(sprintf(
-		                "Sent post %s to Twitter, Twitter id: %s by user %s", 
-		                $post['_id'], 
-		                (string) $post['response']['id'],
-		                $post['response']['screen_name']
-		            ));
-		        }
-		        else {
-		            $this->log(sprintf(
-		                "Failed sending post %s to Twitter, error code %s: %s", 
-		                $post['_id'], 
-		                (string) $code,
-		                $post['response']['error']
-		            ), "warning");
-		        }
-			    
-			    // --end temp code
-			    
-		    }
+				// We can't use Task process forking for now because of a MongoDB PHP driver bug...
+				// @see  https://jira.mongodb.org/browse/PHP-446
+				// $this->task(new SendPostTask($post));
+				
+				
+				
+				// Send to Twitter:
+				$tmhOAuth = new \tmhOAuth(array(
+					'consumer_key'    => CONSUMER_KEY,
+					'consumer_secret' => CONSUMER_SECRET,
+					'user_token'      => $post['user_token'],
+					'user_secret'     => $post['user_secret']
+				));
+				
+				
+				$code = $tmhOAuth->request('POST', $tmhOAuth->url('1/statuses/update'), array(
+					'status' => $post['content']
+				));
+				
+				// There is no special handling of API errors.
+				// Right now we just dump the response to MongoDB
+				
+				$post['code'] = $code;
+				$post['response'] = json_decode($tmhOAuth->response['response'], true);
+				
+				// Move this post to another collection named archive:
+				unset($post['processing']);
+				unset($post['processing_time']);
+				$m = new \Mongo();
+				$m->tampon->archive->insert($post);
+				$m->tampon->queue->remove(array('_id' => $post['_id']));
+				
+				if ($code == 200) {
+					$this->log(sprintf(
+						"Sent post %s to Twitter, Twitter id: %s by user %s", 
+						$post['_id'], 
+						(string) $post['response']['id'],
+						$post['response']['user']['screen_name']
+					));
+				}
+				else {
+					$this->log(sprintf(
+						"Failed sending post %s to Twitter, error code %s: %s", 
+						$post['_id'], 
+						(string) $code,
+						$post['response']['error']
+					), "warning");
+				}
+				
+			}
 		}
+		
 		
 	}
 
@@ -126,5 +143,12 @@ class ParallelTasks extends \Core_Daemon
 			$dir = BASE_PATH . '/logs';
 		
 		return $dir . '/daemon.log';
+	}
+	
+	
+	static function getCurrentUnixTimestamp()
+	{
+		$now = new \DateTime('now', new \DateTimeZone('UTC'));
+		return $now->getTimestamp();
 	}
 }
