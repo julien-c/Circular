@@ -100,8 +100,10 @@ $(document).ready(function(){
 	$("#addtoposts").click(function(){
 		
 		var post = {
-			content: randomQuote()
-			// We just set the content now, the time will be set after refreshing posting times
+			content:          randomQuote(),
+			user_id:          user.id,
+			user_screen_name: user.screen_name
+			// We don't set the time now as it will be set after refreshing posting times
 		};
 		
 		$.post("api/post.php", post, function(data){
