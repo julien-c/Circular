@@ -293,7 +293,7 @@ $(document).ready(function(){
 	function refreshPostingTimes(){
 		
 		var date = new Date();
-		var now = SecondsFrom24HourTime({
+		var secondsUpToNowToday = SecondsFrom24HourTime({
 			hour: date.getHours(),
 			minute: date.getMinutes()
 		});
@@ -301,7 +301,7 @@ $(document).ready(function(){
 		
 		var times = JSON.parse(localStorage['times']);
 		// Let's find which scheduled time is the next one:
-		var i = _.sortedIndex(_.map(times, SecondsFrom12HourTime), now);
+		var i = _.sortedIndex(_.map(times, SecondsFrom12HourTime), secondsUpToNowToday);
 		// So times[i] is the next scheduled time.
 		// More precisely: times[i % times.length]
 		
@@ -310,7 +310,7 @@ $(document).ready(function(){
 		var day = 0;
 		
 		$(".timeline li.post").each(function(){
-			if ((i > 0) && (i % times.length == 0)){
+			if ((i % times.length == 0) && (i > 0)){
 				day++;
 				$(this).before(formatDay(day));
 			}
@@ -343,9 +343,8 @@ $(document).ready(function(){
 	}
 	
 	
-	function generateUnixTimestamp(date){
-		var utc = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds());
-		return Math.floor(utc / 1000);
+	function generateUnixTimestamp(then){
+		return Math.floor(then.getTime() / 1000);
 	}
 	
 });
