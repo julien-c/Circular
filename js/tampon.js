@@ -4,7 +4,7 @@ window.Tampon = {
 	Views:       {}
 };
 
-
+Tampon.events = _.clone(Backbone.Events);
 
 Tampon.Utils = {
 	getParameterByName: function(name) {
@@ -148,13 +148,16 @@ $(document).ready(function(){
 		animation: false
 	});
 	
+	Tampon.events.on('button:setstate', function(btn, state){
+		btn.button(state);
+	});
 	
 	
 	$("#postnow").click(function(){
 		var btn = $(this);
-		btn.button('loading');
+		Tampon.events.trigger('button:setstate', btn, 'loading');
 		setTimeout(function(){
-			btn.button('reset');
+			Tampon.events.trigger('button:setstate', btn, 'reset');
 			new Tampon.Views.Alert({type: "alert-success", content: "This post has been successfully queued to be posted to Twitter"});
 		}, 500);
 	});
