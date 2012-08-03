@@ -78,6 +78,28 @@ Tampon.Views.Alert = Backbone.View.extend({
 });
 
 
+Tampon.Views.Composer = Backbone.View.extend({
+	events: {
+		"click #postnow":  "postnow"
+	},
+	initialize: function(){
+		// Handling of query string value (for the bookmarklet):
+		this.$("#textarea").val(Tampon.Utils.getParameterByName('p'));
+	},
+	postnow: function(){
+		var btn = $("#postnow");
+		// @fixme
+		// @see http://stackoverflow.com/q/11793998/
+		Tampon.events.trigger('button:setstate', btn, 'loading');
+		setTimeout(function(){
+			Tampon.events.trigger('button:setstate', btn, 'reset');
+			new Tampon.Views.Alert({type: "alert-success", content: "This post has been successfully queued to be posted to Twitter"});
+		}, 500);
+	}
+});
+
+
+
 $(document).ready(function(){
 	
 	var spinner = new Spinner({width: 3, color: '#222', speed: 1, trail: 60, hwaccel: true}).spin($('#spinner').get(0));
@@ -122,10 +144,10 @@ $(document).ready(function(){
 	});
 	
 	
-	/* Handling of query string value (Bookmarklet) */
 	
+	/* Initialize Composer */
 	
-	$("#textarea").val(Tampon.Utils.getParameterByName('p'));
+	new Tampon.Views.Composer({el: $('.composer')});
 	
 	
 	/* Navigation */
@@ -150,16 +172,6 @@ $(document).ready(function(){
 	
 	Tampon.events.on('button:setstate', function(btn, state){
 		btn.button(state);
-	});
-	
-	
-	$("#postnow").click(function(){
-		var btn = $(this);
-		Tampon.events.trigger('button:setstate', btn, 'loading');
-		setTimeout(function(){
-			Tampon.events.trigger('button:setstate', btn, 'reset');
-			new Tampon.Views.Alert({type: "alert-success", content: "This post has been successfully queued to be posted to Twitter"});
-		}, 500);
 	});
 	
 	
