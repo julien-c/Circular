@@ -82,7 +82,7 @@ li.post:last-child {
 	border-bottom: none;
 }
 
-span.time-due {
+span.post-time {
 	position: absolute;
 	top: 0px;
 	left: 20px;
@@ -103,7 +103,7 @@ li.post:hover div.options {
 	opacity: 1;
 }
 
-li.post:hover .time-due {
+li.post:hover .post-time {
 	color: #000;
 }
 
@@ -144,7 +144,7 @@ select.timezone {
 	margin-right: 10px;
 }
 
-p.send-time {
+p.settings-time {
 	margin-bottom: 0px;
 }
 

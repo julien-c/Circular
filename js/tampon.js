@@ -1,3 +1,83 @@
+window.Tampon = {
+	Models:      {},
+	Collections: {},
+	Views:       {}
+};
+
+
+
+Tampon.Utils = {
+	getParameterByName: function(name) {
+		name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]"); var regexS = "[\\?&]" + name + "=([^&#]*)"; var regex = new RegExp(regexS); var results = regex.exec(window.location.search); if(results == null) return ""; else return decodeURIComponent(results[1].replace(/\+/g, " "));
+	}
+	// @see http://stackoverflow.com/a/901144/593036
+};
+
+
+Tampon.Utils.Time = {
+	generateUnixTimestamp: function(then){
+		return Math.floor(then.getTime() / 1000);
+	},
+	
+	secondsFrom12HourTime: function(time){
+		// 12am = Midnight, 1am, ..., 12pm = Noon, 1pm, ...
+		// @see http://en.wikipedia.org/wiki/12-hour_clock
+		var hour = time.hour % 12;
+		var seconds = time.minute*60 + hour*60*60;
+		if (time.ampm == "pm") {
+			seconds += 12*60*60;
+		}
+		return seconds;
+	},
+	
+	secondsFrom24HourTime: function(time){
+		return time.minute*60 + time.hour*60*60;
+	},
+	
+	format12HourTime: function(time){
+		var minute = time.minute;
+		if (minute < 10) {
+			minute = '0' + minute;
+		}
+		return time.hour + ":" + minute + " " + time.ampm;
+	},
+	
+	formatDay: function(day){
+		var heading;
+		if (day == 1){
+			heading = "Tomorrow";
+		}
+		else {
+			var date = new Date(+new Date + 1000*60*60*24*day);
+			var DaysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+			var DaysOfMonth = ["","1st","2nd","3rd","4th","5th","6th","7th","8th","9th","10th","11th","12th","13th","14th","15th","16th","17th","18th","19th","20th","21st","22nd","23rd","24th","25th","26th","27th","28th","29th","30th","31st"];
+			var Months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+			heading = DaysOfWeek[date.getDay()] + " " + DaysOfMonth[date.getDate()] + " " + Months[date.getMonth()];
+		}
+		return heading;
+	}
+};
+
+
+Tampon.Views.Alert = Backbone.View.extend({
+	template: $("#tpl-alert").html(),
+	initialize: function(options){
+		this.setElement("#main");
+		this.type = options.type;
+		this.content = options.content;
+		this.render();
+	},
+	render: function(){
+		var output = Mustache.render(
+			this.template, 
+			{type: this.type, content: this.content}
+		);
+		this.$el.prepend(output);
+		return this;
+	}
+});
+
+
 $(document).ready(function(){
 	
 	var spinner = new Spinner({width: 3, color: '#222', speed: 1, trail: 60, hwaccel: true}).spin($('#spinner').get(0));
@@ -26,7 +106,7 @@ $(document).ready(function(){
 				}
 			},
 			error: function(data){
-				new DisplayAlert({type: "alert-error", content: "Unknown Twitter API error"});
+				new Tampon.Views.Alert({type: "alert-error", content: "Unknown Twitter API error"});
 			}
 		});
 	});
@@ -44,10 +124,8 @@ $(document).ready(function(){
 	
 	/* Handling of query string value (Bookmarklet) */
 	
-	function getParameterByName(name) {name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]"); var regexS = "[\\?&]" + name + "=([^&#]*)"; var regex = new RegExp(regexS); var results = regex.exec(window.location.search); if(results == null) return ""; else return decodeURIComponent(results[1].replace(/\+/g, " ")); }
-	// @see http://stackoverflow.com/a/901144/593036
 	
-	$("#textarea").val(getParameterByName('p'));
+	$("#textarea").val(Tampon.Utils.getParameterByName('p'));
 	
 	
 	/* Navigation */
@@ -70,20 +148,14 @@ $(document).ready(function(){
 		animation: false
 	});
 	
-	var DisplayAlert = function(options){
-		var output = Mustache.render(
-			$("#tpl-alert").html(), 
-			options
-		);
-		$("#main").prepend(output);
-	};
+	
 	
 	$("#postnow").click(function(){
 		var btn = $(this);
 		btn.button('loading');
 		setTimeout(function(){
 			btn.button('reset');
-			new DisplayAlert({type: "alert-success", content: "This post has been successfully queued to be posted to Twitter"});
+			new Tampon.Views.Alert({type: "alert-success", content: "This post has been successfully queued to be posted to Twitter"});
 		}, 500);
 	});
 	
@@ -133,7 +205,7 @@ $(document).ready(function(){
 			// Finally, clear textarea:
 			$("#textarea").val("");
 		}, "json").error(function(){
-			new DisplayAlert({type: "alert-error", content: "Something went wrong while saving your post..."});
+			new Tampon.Views.Alert({type: "alert-error", content: "Something went wrong while saving your post..."});
 		});
 		
 	});
@@ -171,7 +243,7 @@ $(document).ready(function(){
 		$(this).closest("li.post").fadeOut('fast', function(){
 			$(this).remove();
 		});
-		new DisplayAlert({type: "", content: "This post has been deleted"});
+		new Tampon.Views.Alert({type: "", content: "This post has been deleted"});
 	});
 	
 	
@@ -185,9 +257,9 @@ $(document).ready(function(){
 		$(".times").append(output);
 	});
 	
-	$(".send-time button.close").live('click', function(e){
+	$(".settings-time button.close").live('click', function(e){
 		e.preventDefault();
-		$(this).closest(".send-time").fadeOut('fast', function(){
+		$(this).closest(".settings-time").fadeOut('fast', function(){
 			$(this).remove();
 		});
 	});
@@ -245,7 +317,7 @@ $(document).ready(function(){
 		// Actual saving:
 		localStorage['timezone'] = $("select.timezone").val();
 		var times = [];
-		$("p.send-time").each(function(){
+		$("p.settings-time").each(function(){
 			times.push({
 				hour:   $(this).find("select.hour").val(),
 				minute: $(this).find("select.minute").val(),
@@ -253,7 +325,7 @@ $(document).ready(function(){
 			});
 		});
 		// Store times sorted by chronological order:
-		times = _.sortBy(times, SecondsFrom12HourTime);
+		times = _.sortBy(times, Tampon.Utils.Time.secondsFrom12HourTime);
 		localStorage['times'] = JSON.stringify(times);
 		// Refresh displayed times in Settings:
 		displayTimes();
@@ -261,48 +333,12 @@ $(document).ready(function(){
 		refreshPostingTimes();
 	});
 	
-	function SecondsFrom12HourTime(time){
-		// 12am = Midnight, 1am, ..., 12pm = Noon, 1pm, ...
-		// @see http://en.wikipedia.org/wiki/12-hour_clock
-		var hour = time.hour % 12;
-		var seconds = time.minute*60 + hour*60*60;
-		if (time.ampm == "pm") {
-			seconds += 12*60*60;
-		}
-		return seconds;
-	}
 	
-	function SecondsFrom24HourTime(time){
-		return time.minute*60 + time.hour*60*60;
-	}
-	
-	function formatTime(time){
-		var minute = time.minute;
-		if (minute < 10) {
-			minute = '0' + minute;
-		}
-		return time.hour + ":" + minute + " " + time.ampm;
-	}
-	
-	function formatDay(day){
-		var heading;
-		if (day == 1){
-			heading = "Tomorrow";
-		}
-		else {
-			var date = new Date(+new Date + 1000*60*60*24*day);
-			var DaysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-			var DaysOfMonth = ["","1st","2nd","3rd","4th","5th","6th","7th","8th","9th","10th","11th","12th","13th","14th","15th","16th","17th","18th","19th","20th","21st","22nd","23rd","24th","25th","26th","27th","28th","29th","30th","31st"];
-			var Months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-			heading = DaysOfWeek[date.getDay()] + " " + DaysOfMonth[date.getDate()] + " " + Months[date.getMonth()];
-		}
-		return '<li class="heading"><h3>' + heading + '</h3></li>';
-	}
 	
 	function refreshPostingTimes(){
 		
 		var date = new Date();
-		var secondsUpToNowToday = SecondsFrom24HourTime({
+		var secondsUpToNowToday = Tampon.Utils.Time.secondsFrom24HourTime({
 			hour: date.getHours(),
 			minute: date.getMinutes()
 		});
@@ -310,7 +346,7 @@ $(document).ready(function(){
 		
 		var times = JSON.parse(localStorage['times']);
 		// Let's find which scheduled time is the next one:
-		var i = _.sortedIndex(_.map(times, SecondsFrom12HourTime), secondsUpToNowToday);
+		var i = _.sortedIndex(_.map(times, Tampon.Utils.Time.secondsFrom12HourTime), secondsUpToNowToday);
 		// So times[i] is the next scheduled time.
 		// More precisely: times[i % times.length]
 		
@@ -321,15 +357,15 @@ $(document).ready(function(){
 		$(".timeline li.post").each(function(){
 			if ((i % times.length == 0) && (i > 0)){
 				day++;
-				$(this).before(formatDay(day));
+				$(this).before('<li class="heading"><h3>' + Tampon.Utils.Time.formatDay(day) + '</h3></li>');
 			}
-			$(".time-due", this).text(formatTime(times[i % times.length]));
+			$(".post-time", this).text(Tampon.Utils.Time.format12HourTime(times[i % times.length]));
 			
 			// Now compute the UNIX timestamp for this time:
-			var then = new Date(date.getFullYear(), date.getMonth(), date.getDate() + day, 0, 0, SecondsFrom12HourTime(times[i % times.length]));
+			var then = new Date(date.getFullYear(), date.getMonth(), date.getDate() + day, 0, 0, Tampon.Utils.Time.secondsFrom12HourTime(times[i % times.length]));
 			// We use the fact that this method "expands" parameters.
 			// @todo: Check that this is documented and standard.
-			var timestamp = generateUnixTimestamp(then);
+			var timestamp = Tampon.Utils.Time.generateUnixTimestamp(then);
 			$(this).attr("data-timestamp", timestamp);
 			
 			i++;
@@ -347,14 +383,12 @@ $(document).ready(function(){
 		
 		
 		$.post("api/times.php", {posts: posts}, null, "json").error(function(){
-			new DisplayAlert({type: "alert-error", content: "Something went wrong while updating your posts..."});
+			new Tampon.Views.Alert({type: "alert-error", content: "Something went wrong while updating your posts..."});
 		});
 	}
 	
 	
-	function generateUnixTimestamp(then){
-		return Math.floor(then.getTime() / 1000);
-	}
+	
 	
 });
 
