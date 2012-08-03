@@ -86,10 +86,8 @@ Tampon.Views.Composer = Backbone.View.extend({
 		// Handling of query string value (for the bookmarklet):
 		this.$("#textarea").val(Tampon.Utils.getParameterByName('p'));
 	},
-	postnow: function(){
-		var btn = $("#postnow");
-		// @fixme
-		// @see http://stackoverflow.com/q/11793998/
+	postnow: function(e){
+		var btn = $(e.target);
 		Tampon.events.trigger('button:setstate', btn, 'loading');
 		setTimeout(function(){
 			Tampon.events.trigger('button:setstate', btn, 'reset');
