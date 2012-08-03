@@ -312,9 +312,9 @@ $(document).ready(function(){
 	
 	$("#savesettings").click(function(){
 		var btn = $(this);
-		btn.button('loading');
+		Tampon.events.trigger('button:setstate', btn, 'loading');
 		setTimeout(function(){
-			btn.button('reset');
+			Tampon.events.trigger('button:setstate', btn, 'reset');
 		}, 500);
 		
 		// Actual saving:
