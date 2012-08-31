@@ -275,6 +275,9 @@ Tampon.Views.Composer = Backbone.View.extend({
 			Tampon.events.trigger('button:setstate', btn, 'reset');
 			new Tampon.Views.Alert({type: "alert-success", content: "This post has been successfully queued to be posted to Twitter"});
 		}, 500);
+		var postnow = new Tampon.Models.Post({content: this.$("#textarea").val(), time:"now"});
+		postnow.save();
+		this.$("#textarea").val("");
 	},
 	addtoposts: function(){
 		this.collection.create({content: this.$("#textarea").val()}, {wait: true, error: this.errorSave});
@@ -435,100 +438,108 @@ function refreshPostingTimes(){
 
 
 
+Tampon.App = {
+	/* This is simple app-level jQuery stuff for which Backbone seems overkill */
+	initialize: function() {
+		
+		var spinner = new Spinner({width: 3, color: '#222', speed: 1, trail: 60, hwaccel: true}).spin($('#spinner').get(0));
+		
+		/* Sign in with Twitter */
+		
+		$.get("api/oauth.php", null, function(data){
+			spinner.stop();
+			if (data && data.id_str) {
+				// We have a signed-in Twitter user
+				$(".not-logged-in").hide();
+				$(".logged-in").show();
+				// Store logged in user's data into Tampon.user:
+				Tampon.user = data;
+				// Trigger "logged in" event:
+				Tampon.events.trigger('loggedin');
+			}
+		});
+		
+		$(".signin").click(function(){
+			$.ajax({
+				url: "api/oauth.php?start=1", 
+				success: function(data){
+					if (data && data.authurl) {
+						// Start the OAuth dance:
+						window.location = data.authurl;
+					}
+				},
+				error: function(data){
+					new Tampon.Views.Alert({type: "alert-error", content: "Unknown Twitter API error"});
+				}
+			});
+		});
+		
+		$(".logout").click(function(e){
+			e.preventDefault();
+			$.ajax({
+				url: "api/oauth.php?wipe=1",
+				success: function(){
+					window.location.reload();
+				}
+			}); 
+		});
+		
+		/* Main Navigation */
+		
+		$(".link-to-settings").live('click', function(){
+			$(".composer, .posts").hide();
+			$(".settings").show();
+		});
+		
+		$(".link-to-dashboard").live('click', function(){
+			$(".composer, .posts").show();
+			$(".settings").hide();
+		});
+		
+		/* Twitter Bootstrap JS */
+		
+		$("body").tooltip({
+			selector: '[rel=tooltip]',
+			animation: false
+		});
+		
+		Tampon.events.on('button:setstate', function(btn, state){
+			btn.button(state);
+		});
+		
+		/* jQuery UI sortable */
+		
+		$("ul.timeline").sortable({
+			items: "li.post",
+			placeholder: "ui-state-highlight",
+			handle: ".sort-handle"
+		});
+		
+		$("ul.timeline").bind("sortstop", function(){
+			// New order for our ids:
+			var order = $(this).sortable('toArray', {attribute: "data-id"});
+			Tampon.events.trigger('ui:posts:sort', order);
+		});
+		
+		/* jQuery Hotkeys */
+		
+		$("#textarea").bind('keydown', 'meta+return', function(){
+			$("#addtoposts").click();
+		});
+	}
+}
+
+
+
+
+
+
 
 $(document).ready(function(){
 	
-	var spinner = new Spinner({width: 3, color: '#222', speed: 1, trail: 60, hwaccel: true}).spin($('#spinner').get(0));
+	/* Initialize App */
 	
-	/* Sign in with Twitter */
-	
-	$.get("api/oauth.php", null, function(data){
-		spinner.stop();
-		if (data && data.id_str) {
-			// We have a signed-in Twitter user
-			$(".not-logged-in").hide();
-			$(".logged-in").show();
-			// Store logged in user's data into Tampon.user:
-			Tampon.user = data;
-			// Trigger "logged in" event:
-			Tampon.events.trigger('loggedin');
-		}
-	});
-	
-	
-	$(".signin").click(function(){
-		$.ajax({
-			url: "api/oauth.php?start=1", 
-			success: function(data){
-				if (data && data.authurl) {
-					window.location = data.authurl;
-				}
-			},
-			error: function(data){
-				new Tampon.Views.Alert({type: "alert-error", content: "Unknown Twitter API error"});
-			}
-		});
-	});
-	
-	$(".logout").click(function(e){
-		e.preventDefault();
-		$.ajax({
-			url: "api/oauth.php?wipe=1",
-			success: function(){
-				window.location.reload();
-			}
-		}); 
-	});
-	
-	
-	/* Main Navigation */
-	
-	$(".link-to-settings").live('click', function(){
-		$(".composer, .posts").hide();
-		$(".settings").show();
-	});
-	
-	$(".link-to-dashboard").live('click', function(){
-		$(".composer, .posts").show();
-		$(".settings").hide();
-	});
-	
-	
-	/* Twitter Bootstrap JS */
-	
-	$("body").tooltip({
-		selector: '[rel=tooltip]',
-		animation: false
-	});
-	
-	Tampon.events.on('button:setstate', function(btn, state){
-		btn.button(state);
-	});
-	
-	
-	/* jQuery UI sortable */
-	
-	$("ul.timeline").sortable({
-		items: "li.post",
-		placeholder: "ui-state-highlight",
-		handle: ".sort-handle"
-	});
-	
-	$("ul.timeline").bind("sortstop", function(){
-		// New order for our ids:
-		var order = $(this).sortable('toArray', {attribute: "data-id"});
-		Tampon.events.trigger('ui:posts:sort', order);
-	});
-	
-	
-	/* jQuery Hotkeys */
-	
-	$("#textarea").bind('keydown', 'meta+return', function(){
-		$("#addtoposts").click();
-	});
-	
-	
-	
+	Tampon.App.initialize();
 	
 	
 	/* Initialize Settings */
@@ -550,7 +561,6 @@ $(document).ready(function(){
 	/* Initialize PostsTimes */
 	
 	var poststimes = new Tampon.Models.PostsTimes({posts: posts, settings: settings});
-	
 	
 });
 
