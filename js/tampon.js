@@ -279,7 +279,7 @@ Tampon.Views.Composer = Backbone.View.extend({
 			Tampon.events.trigger('button:setstate', btn, 'reset');
 			new Tampon.Views.Alert({type: "alert-success", content: "This post has been successfully queued to be posted to Twitter"});
 		}, 500);
-		var postnow = new Tampon.Models.Post({content: this.$("#textarea").val(), time: "now"});
+		var postnow = new Tampon.Models.Post({content: this.$("#textarea").val(), time:"now"});
 		postnow.save();
 		this.$("#textarea").val("").keydown();
 	},
