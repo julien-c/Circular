@@ -13,16 +13,21 @@ if (!isset($_SESSION['access_token'])) {
 
 // All right, our user is authenticated.
 
+// $_SESSION['access_token'] contains oauth_token, oauth_token_secret, user_id, screen_name
+
+
 switch ($_SERVER['REQUEST_METHOD']) {
 	
 	case "GET":
 		
 		$m = new Mongo();
-		$posts = $m->tampon->posts->find(array('user_token' => $_SESSION['access_token']['oauth_token']));
+		$posts = $m->tampon->posts->find(array('user_id' => $_SESSION['access_token']['user_id']));
 		
 		$out = array();
 		
 		foreach ($posts as $post) {
+			unset($post['user_id']);
+			unset($post['user_screen_name']);
 			unset($post['user_token']);
 			unset($post['user_secret']);
 			
@@ -46,9 +51,11 @@ switch ($_SERVER['REQUEST_METHOD']) {
 		
 		$post = json_decode(file_get_contents('php://input'), true);
 		
-		// Add token and secret for current user:
-		$post['user_token']  = $_SESSION['access_token']['oauth_token'];
-		$post['user_secret'] = $_SESSION['access_token']['oauth_token_secret'];
+		// Add user information:
+		$post['user_id']          = $_SESSION['access_token']['user_id'];
+		$post['user_screen_name'] = $_SESSION['access_token']['screen_name'];
+		$post['user_token']       = $_SESSION['access_token']['oauth_token'];
+		$post['user_secret']      = $_SESSION['access_token']['oauth_token_secret'];
 		
 		
 		$m = new Mongo();
@@ -76,8 +83,8 @@ switch ($_SERVER['REQUEST_METHOD']) {
 			// Looks like a valid MongoId
 			
 			$m = new Mongo();
-			$m->tampon->posts->remove(array('_id' => new MongoId($id)));
-			// XXX: Add security
+			$m->tampon->posts->remove(array('_id' => new MongoId($id), 'user_id' => $_SESSION['access_token']['user_id']));
+			// We only delete the post if it is owned by the current user.
 		}
 		else {
 			header('HTTP/1.1 400 Bad Request');

@@ -205,8 +205,6 @@ Tampon.Models.Post = Backbone.Model.extend({
 		if (this.get('content') == "") {
 			this.set('content', this.randomQuote());
 		}
-		this.set('user_id',          Tampon.user.id);
-		this.set('user_screen_name', Tampon.user.screen_name);
 		// We don't set the time now as it will be set after refreshing posting times
 	},
 	randomQuote: function(){
