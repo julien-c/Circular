@@ -16,7 +16,7 @@ if (!isset($_SESSION['access_token'])) {
 switch ($_SERVER['REQUEST_METHOD']) {
 	
 	case "GET":
-	
+		
 		$m = new Mongo();
 		$posts = $m->tampon->posts->find(array('user_token' => $_SESSION['access_token']['oauth_token']));
 		
@@ -49,15 +49,23 @@ switch ($_SERVER['REQUEST_METHOD']) {
 		// Add token and secret for current user:
 		$post['user_token']  = $_SESSION['access_token']['oauth_token'];
 		$post['user_secret'] = $_SESSION['access_token']['oauth_token_secret'];
-
-
+		
+		
 		$m = new Mongo();
-		$mongoposts = $m->tampon->posts;
-
-		$mongoposts->insert($post);
-
+		
+		if (isset($post['time']) && $post['time'] == "now") {
+			// If explicitly requested, send it right now through `queue`:
+			$m->tampon->queue->insert($post);
+		}
+		else {
+			$m->tampon->posts->insert($post);
+		}
+		
+		// MongoId are assumed to be unique accross collections
+		// @see http://stackoverflow.com/questions/5303869/mongodb-are-mongoids-unique-across-collections
+		
 		echo json_encode(array("id" => (string) $post['_id']));
-
+		
 		break;
 		
 		

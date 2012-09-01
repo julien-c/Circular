@@ -280,13 +280,17 @@ Tampon.Views.Composer = Backbone.View.extend({
 			Tampon.events.trigger('button:setstate', btn, 'reset');
 			new Tampon.Views.Alert({type: "alert-success", content: "This post has been successfully queued to be posted to Twitter"});
 		}, 500);
-		var postnow = new Tampon.Models.Post({content: this.$("#textarea").val(), time: "now"});
-		postnow.save();
 		this.$("#textarea").val("").keydown();
+		
+		var postnow = new Tampon.Models.Post({content: this.$("#textarea").val(), time: "now"});
+		// As this model is outside of the collection, we have to specify a urlRoot to save it to (it's the same endpoint, actually):
+		postnow.urlRoot = "api/posts.php";
+		postnow.save();
 	},
 	addtoposts: function(){
 		this.collection.create({content: this.$("#textarea").val()}, {wait: true, error: this.errorSave});
 		// Wait for the server to respond with a Mongo id.
+		// XXX
 		this.$("#textarea").val("").keydown();
 	},
 	errorSave: function(){
