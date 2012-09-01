@@ -200,7 +200,6 @@ Tampon.Views.Settings = Backbone.View.extend({
 
 
 Tampon.Models.Post = Backbone.Model.extend({
-	url: "api/post.php",
 	initialize: function(attributes){
 		if (this.get('content') == "") {
 			this.set('content', this.randomQuote());
@@ -237,9 +236,12 @@ Tampon.Models.Post = Backbone.Model.extend({
 
 
 Tampon.Collections.Posts = Backbone.Collection.extend({
+	url: "api/posts.php",
 	model: Tampon.Models.Post,
 	initialize: function(){
 		Tampon.events.on('ui:posts:sort', this.refreshPostsOrder, this);
+		
+		this.fetch();
 	},
 	refreshPostsOrder: function(order){
 		// Refresh sorting order after jQuery UI sorting:
