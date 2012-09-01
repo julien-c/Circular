@@ -109,6 +109,7 @@ Tampon.Models.Settings = Backbone.Model.extend({
 		];
 		return times;
 	},
+	// @ see http://stackoverflow.com/questions/11817015/is-it-good-practice-to-override-fetch-and-save-directly-from-the-model
 	fetch: function(){
 		this.set('timezone', localStorage['timezone']);
 		if (localStorage['times']) {
@@ -245,7 +246,7 @@ Tampon.Collections.Posts = Backbone.Collection.extend({
 	},
 	refreshPostsOrder: function(order){
 		// Refresh sorting order after jQuery UI sorting:
-		// (Too bad underscore doesn't have a function to order an array of objects by an array of one of their attributes)
+		// (Too bad Underscore doesn't have a function to order an array of objects by an array of one of their attributes)
 		// @see  https://github.com/documentcloud/underscore/issues/692
 		this.models = this.sortBy(function(post){
 			return _.indexOf(order, post.id);
@@ -322,8 +323,14 @@ Tampon.Views.Posts = Backbone.View.extend({
 		"click .deletepost": "deletepost"
 	},
 	initialize: function(){
+		// Initial fetch:
+		this.collection.on('reset', this.render, this);
+		
 		this.collection.on('add', this.renderPost, this);
 		this.collection.on('poststimes:refresh', this.renderPostsTimes, this);
+	},
+	render: function(posts){
+		posts.each(this.renderPost, this);
 	},
 	renderPost: function(post){
 		var output = Mustache.render(this.template, post.toJSON());
@@ -332,10 +339,14 @@ Tampon.Views.Posts = Backbone.View.extend({
 	deletepost: function(e){
 		e.preventDefault();
 		$(e.currentTarget).tooltip('hide');
-		$(e.currentTarget).closest("li.post").fadeOut('fast', function(){
+		var post = $(e.currentTarget).closest("li.post");
+		var id = post.attr("data-id");
+		post.fadeOut('fast', function(){
 			$(this).remove();
 		});
 		new Tampon.Views.Alert({type: "", content: "This post has been deleted"});
+		// Proceed to delete:
+		this.collection.get(id).destroy();
 	},
 	renderPostsTimes: function(){
 		
@@ -565,6 +576,7 @@ $(document).ready(function(){
 	/* Initialize App */
 	
 	Tampon.App.initialize();
+	
 	
 	
 	/* Initialize Settings */
