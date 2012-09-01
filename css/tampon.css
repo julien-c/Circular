@@ -44,12 +44,24 @@
 	background-position:0 0;
 }
 
-
 .profile {
 	position: relative;
 	width: 48px;
 	height: 48px;
 	margin-bottom: 5px;
+	float: left;
+}
+
+.countdown {
+	float: right;
+	margin-top: 30px;
+	margin-right: 10px;
+	font-size: 15px;
+	font-weight: 300;
+}
+
+.countdown.warning {
+	color: #D40D12;
 }
 
 
