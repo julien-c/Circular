@@ -5,7 +5,7 @@
  * This API endpoint conforms to Backbone.sync's default CRUD/REST implementation.
  * @see http://backbonejs.org/#Sync
  *
- * The other endpoint (`times.php`) enables bulk modifications of posts' times.
+ * The other endpoint (`times.php`) enables bulk modifications of posts' times via POST.
  *
  */
 

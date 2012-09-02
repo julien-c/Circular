@@ -193,9 +193,8 @@ Tampon.Views.Settings = Backbone.View.extend({
 		// Refresh displayed times:
 		this.renderTimes();
 		
-		// Refresh posting times in the Timeline view:
-		// refreshPostingTimes();
-		// @fixme
+		// Trigger event so that posting times in the Timeline view can be refreshed:
+		Tampon.events.trigger('settings:saved');
 	}
 });
 
@@ -382,7 +381,7 @@ Tampon.Views.Posts = Backbone.View.extend({
 		
 		var day = 0;
 		
-		console.log(this.collection);
+		// console.log(this.collection);
 		
 		this.collection.each(function(post){
 			if (post.local12HourTime.day > day) {
@@ -397,12 +396,13 @@ Tampon.Views.Posts = Backbone.View.extend({
 
 
 Tampon.Models.PostsTimes = Backbone.Model.extend({
-	url: "api/times.php",
+	urlRoot: "api/times.php",
 	initialize: function(options){
 		this.posts    = options.posts;
 		this.settings = options.settings;
 		
 		Tampon.events.on('posts:sort', this.computePostsTimes, this);
+		Tampon.events.on('settings:saved', this.computePostsTimes, this);
 	},
 	computePostsTimes: function(){
 		
@@ -424,6 +424,7 @@ Tampon.Models.PostsTimes = Backbone.Model.extend({
 			if ((i % times.length == 0) && (i > 0)){
 				day++;
 			}
+			// These are only stored for internal use (not sent to server):
 			post.local12HourTime     = times[i % times.length];
 			post.local12HourTime.day = day;
 			
@@ -433,12 +434,28 @@ Tampon.Models.PostsTimes = Backbone.Model.extend({
 			// @todo: Check that this is documented and standard.
 			var timestamp = Tampon.Utils.Time.generateUnixTimestamp(then);
 			
-			post.time = timestamp;
+			post.set({time: timestamp});
 			
 			i++;
 		});
 		
 		this.posts.trigger('poststimes:refresh');
+		this.save();
+	},
+	save: function(){
+		// Only keep id and time from the Posts collection:
+		var posts = [];
+		this.posts.each(function(post){
+			posts.push({
+				id:    post.id,
+				time:  post.get('time')
+			});
+		});
+		
+		// Now save to server:
+		$.post(this.urlRoot, {posts: posts}, null, "json").error(function(){
+			new Tampon.Views.Alert({type: "alert-error", content: "Something went wrong while updating your posts..."});
+		});
 	}
 });
 
