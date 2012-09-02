@@ -239,8 +239,6 @@ Tampon.Collections.Posts = Backbone.Collection.extend({
 	model: Tampon.Models.Post,
 	initialize: function(){
 		Tampon.events.on('ui:posts:sort', this.refreshPostsOrder, this);
-		
-		this.fetch();
 	},
 	refreshPostsOrder: function(order){
 		// Refresh sorting order after jQuery UI sorting:
@@ -281,14 +279,13 @@ Tampon.Views.Composer = Backbone.View.extend({
 		this.$("#textarea").val("").keydown();
 		
 		var postnow = new Tampon.Models.Post({content: this.$("#textarea").val(), time: "now"});
-		// As this model is outside of the collection, we have to specify a urlRoot to save it to (it's the same endpoint, actually):
+		// As this model is outside of the collection, we have to specify a urlRoot to save it to (it's actually the same endpoint):
 		postnow.urlRoot = "api/posts.php";
 		postnow.save();
 	},
 	addtoposts: function(){
 		this.collection.create({content: this.$("#textarea").val()}, {wait: true, error: this.errorSave});
 		// Wait for the server to respond with a Mongo id.
-		// XXX
 		this.$("#textarea").val("").keydown();
 	},
 	errorSave: function(){
@@ -322,7 +319,8 @@ Tampon.Views.Posts = Backbone.View.extend({
 	el: ".posts",
 	template: $("#tpl-post").html(),
 	events: {
-		"click .deletepost": "deletepost"
+		"click .deletepost": "deletepost",
+		"click .postnow":    "postnow"
 	},
 	initialize: function(){
 		// Initial fetch:
@@ -349,6 +347,22 @@ Tampon.Views.Posts = Backbone.View.extend({
 		new Tampon.Views.Alert({type: "", content: "This post has been deleted"});
 		// Proceed to delete:
 		this.collection.get(id).destroy();
+	},
+	postnow: function(e){
+		e.preventDefault();
+		$(e.currentTarget).tooltip('hide');
+		var post = $(e.currentTarget).closest("li.post");
+		var id = post.attr("data-id");
+		post.fadeOut('fast', function(){
+			$(this).remove();
+		});
+		setTimeout(function(){
+			new Tampon.Views.Alert({type: "alert-success", content: "This post has been successfully queued to be posted to Twitter"});
+		}, 500);
+		// Update post's time on the server to "now":
+		console.log(this.collection.get(id).get('time'));
+		this.collection.get(id).set('time', 'now').save();
+		console.log(this.collection.get(id).get('time'));
 	},
 	renderPostsTimes: function(){
 		
@@ -591,6 +605,7 @@ $(document).ready(function(){
 	/* Initialize Composer and Posts */
 	
 	var posts = new Tampon.Collections.Posts();
+	posts.fetch();
 	
 	new Tampon.Views.Composer({collection: posts});
 	
