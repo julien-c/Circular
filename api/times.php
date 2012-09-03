@@ -33,7 +33,6 @@ $user = array(
 
 
 if (!isset($_POST['posts'])) {
-	header('HTTP/1.1 400 Bad Request');
 	exit;
 }
 
