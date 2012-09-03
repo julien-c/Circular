@@ -37,8 +37,9 @@ switch ($_SERVER['REQUEST_METHOD']) {
 	
 	case "GET":
 		
+		// Retrieve all posts by current user, sorted by time ascending:
 		$m = new Mongo();
-		$posts = $m->tampon->posts->find(array('user_id' => $user['user_id']));
+		$posts = $m->tampon->posts->find(array('user_id' => $user['user_id']))->sort(array('time' => 1));
 		
 		$out = array();
 		
@@ -48,8 +49,13 @@ switch ($_SERVER['REQUEST_METHOD']) {
 			unset($post['user_token']);
 			unset($post['user_secret']);
 			
+			// Translation layer/adapter for Backbone:
+			// XXX: Use the exact same data in Backbone as in Mongo
 			$post['id'] = (string) $post['_id'];
 			unset($post['_id']);
+			if (isset($post['time'])) {
+				$post['time'] = $post['time']->sec;
+			}
 			
 			$out[] = $post;
 		}
@@ -120,6 +126,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
 			$put = json_decode(file_get_contents('php://input'), true);
 			
 			// The only possible update right now is "Post now" on a scheduled post:
+			
 			if (isset($put['time']) && $put['time'] == "now") {
 				
 				$m = new Mongo();

@@ -19,7 +19,6 @@ Tampon.Utils.Time = {
 	generateUnixTimestamp: function(then){
 		return Math.floor(then.getTime() / 1000);
 	},
-	
 	secondsFrom12HourTime: function(time){
 		// 12am = Midnight, 1am, ..., 12pm = Noon, 1pm, ...
 		// @see http://en.wikipedia.org/wiki/12-hour_clock
@@ -30,11 +29,20 @@ Tampon.Utils.Time = {
 		}
 		return seconds;
 	},
-	
 	secondsFrom24HourTime: function(time){
 		return time.minute*60 + time.hour*60*60;
 	},
-	
+	get12HourTimeFrom24HourTime: function(hour, minute){
+		var _12HourTime = {
+			hour: hour % 12,
+			minute: minute,
+			ampm: (hour < 12) ? "am" : "pm" 
+		};
+		if (_12HourTime.hour == 0) {
+			_12HourTime.hour = 12;
+		}
+		return _12HourTime;
+	},
 	format12HourTime: function(time){
 		var minute = time.minute;
 		if (minute < 10) {
@@ -42,10 +50,13 @@ Tampon.Utils.Time = {
 		}
 		return time.hour + ":" + minute + " " + time.ampm;
 	},
-	
 	formatDay: function(day){
+		// `day` is the offset in days from today (local time)
 		var heading;
-		if (day == 1){
+		if (day == 0){
+			heading = "Today";
+		}
+		else if (day == 1){
 			heading = "Tomorrow";
 		}
 		else {
@@ -56,6 +67,20 @@ Tampon.Utils.Time = {
 			heading = DaysOfWeek[date.getDay()] + " " + DaysOfMonth[date.getDate()] + " " + Months[date.getMonth()];
 		}
 		return heading;
+	},
+	local12HourTimeAndDayFromTimeStamp: function(timestamp){
+		var date = new Date(timestamp * 1000);
+		var now  = new Date();
+		var local12HourTime = this.get12HourTimeFrom24HourTime(date.getHours(), date.getMinutes());
+		
+		// Now let's compute the day offset (local time):
+		var localMidnightToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+		var localMidnightTodayTimestamp = this.generateUnixTimestamp(localMidnightToday);
+		var day = Math.floor((timestamp - localMidnightTodayTimestamp) / (24*60*60));
+		
+		local12HourTime.day = day;
+		
+		return local12HourTime;
 	}
 };
 
@@ -280,7 +305,8 @@ Tampon.Views.Composer = Backbone.View.extend({
 		this.resetComposer();
 		
 		var postnow = new Tampon.Models.Post({content: this.$("#textarea").val(), time: "now"});
-		// As this model is outside of the collection, we have to specify a urlRoot to save it to (it's actually the same endpoint):
+		// As this model is outside of the collection, we have to specify a urlRoot to save it to 
+		// (it's actually the same endpoint as the collection itself):
 		postnow.urlRoot = "api/posts.php";
 		postnow.save();
 	},
@@ -329,26 +355,63 @@ Tampon.Views.Posts = Backbone.View.extend({
 	el: ".posts",
 	template: $("#tpl-post").html(),
 	events: {
-		"click .deletepost": "deletepost",
-		"click .postnow":    "postnow"
+		"mousedown .options .btn":  "hidetooltip",
+		"click .deletepost":        "deletepost",
+		"click .postnow":           "postnow"
 	},
 	initialize: function(){
 		// Initial fetch:
 		this.collection.on('reset', this.render, this);
 		
 		this.collection.on('add', this.renderPost, this);
-		this.collection.on('poststimes:refresh', this.renderPostsTimes, this);
+		this.collection.on('poststimes:refresh', this.renderPostsTimesAndHeadings, this);
 	},
 	render: function(posts){
 		posts.each(this.renderPost, this);
+		this.renderDateHeadings();
 	},
 	renderPost: function(post){
+		if (post.has('time')) {
+			this.formatTime(post);
+		}
 		var output = Mustache.render(this.template, post.toJSON());
 		this.$(".timeline").append(output);
 	},
+	formatTime: function(post){
+		// This function is called on each post, after the initial fetch, or after each times refresh.
+		// (Maybe it should be in the model instead.)
+		post.local12HourTimeAndDay = Tampon.Utils.Time.local12HourTimeAndDayFromTimeStamp(post.get('time'));
+		// Is there any way to add a local-only attribute? (that won't ever be sent to server)
+		post.set({formattedTime: Tampon.Utils.Time.format12HourTime(post.local12HourTimeAndDay)});
+	},
+	renderPostsTimesAndHeadings: function(){
+		this.renderPostsTimes();
+		this.renderDateHeadings();
+	},
+	renderPostsTimes: function(){
+		this.collection.each(this.renderPostTime, this);
+	},
+	renderPostTime: function(post){
+		this.formatTime(post);
+		// As the View contains all posts, we have to query the whole document's DOM here:
+		$(".post-time", "#post-"+post.id).text(post.get('formattedTime'));
+	},
+	renderDateHeadings: function(){
+		// Let's first clear the Date headers (except Today which should always be here):
+		this.$(".timeline li.heading").not(".today").remove();
+		
+		var day = 0;
+		
+		this.collection.each(function(post){
+			// We assume the collection is ordered by time (it always should be)
+			if (post.local12HourTimeAndDay.day > day) {
+				day = post.local12HourTimeAndDay.day;
+				$("#post-"+post.id).before('<li class="heading"><h3>' + Tampon.Utils.Time.formatDay(day) + '</h3></li>');
+			}
+		});
+	},
 	deletepost: function(e){
 		e.preventDefault();
-		$(e.currentTarget).tooltip('hide');
 		var post = $(e.currentTarget).closest("li.post");
 		var id = post.attr("data-id");
 		post.fadeOut('fast', function(){
@@ -360,7 +423,6 @@ Tampon.Views.Posts = Backbone.View.extend({
 	},
 	postnow: function(e){
 		e.preventDefault();
-		$(e.currentTarget).tooltip('hide');
 		var post = $(e.currentTarget).closest("li.post");
 		var id = post.attr("data-id");
 		post.fadeOut('fast', function(){
@@ -369,28 +431,14 @@ Tampon.Views.Posts = Backbone.View.extend({
 		setTimeout(function(){
 			new Tampon.Views.Alert({type: "alert-success", content: "This post has been successfully queued to be posted to Twitter"});
 		}, 500);
+		
 		// Update post's time on the server to "now":
-		console.log(this.collection.get(id).get('time'));
 		this.collection.get(id).set('time', 'now').save();
-		console.log(this.collection.get(id).get('time'));
+		// Finally, remove from collection:
+		this.collection.remove(this.collection.get(id));
 	},
-	renderPostsTimes: function(){
-		
-		// Let's first clear the Date headers (except Today which should always be here):
-		this.$(".timeline li.heading").not(".today").remove();
-		
-		var day = 0;
-		
-		// console.log(this.collection);
-		
-		this.collection.each(function(post){
-			if (post.local12HourTime.day > day) {
-				this.$("#post-"+post.id).before('<li class="heading"><h3>' + Tampon.Utils.Time.formatDay(day) + '</h3></li>');
-				day = post.local12HourTime.day;
-			}
-			
-			$(".post-time", "#post-"+post.id).text(Tampon.Utils.Time.format12HourTime(post.local12HourTime));
-		});
+	hidetooltip: function(e){
+		$(e.currentTarget).tooltip('hide');
 	}
 });
 
@@ -403,6 +451,8 @@ Tampon.Models.PostsTimes = Backbone.Model.extend({
 		
 		Tampon.events.on('posts:sort', this.computePostsTimes, this);
 		Tampon.events.on('settings:saved', this.computePostsTimes, this);
+		this.posts.on('add', this.computePostsTimes, this);
+		this.posts.on('remove', this.computePostsTimes, this);
 	},
 	computePostsTimes: function(){
 		
@@ -424,13 +474,12 @@ Tampon.Models.PostsTimes = Backbone.Model.extend({
 			if ((i % times.length == 0) && (i > 0)){
 				day++;
 			}
-			// These are only stored for internal use (not sent to server):
-			post.local12HourTime     = times[i % times.length];
-			post.local12HourTime.day = day;
+			// This post must be scheduled to be sent in `day` days, at time `times[i % times.length]`:
 			
 			// Now compute the UNIX timestamp for this time:
 			var then = new Date(date.getFullYear(), date.getMonth(), date.getDate() + day, 0, 0, Tampon.Utils.Time.secondsFrom12HourTime(times[i % times.length]));
 			// We use the fact that this method "expands" parameters.
+			// (ie: you can specify 32 days or 5000 seconds, parameters will overflow)
 			// @todo: Check that this is documented and standard.
 			var timestamp = Tampon.Utils.Time.generateUnixTimestamp(then);
 			
@@ -458,62 +507,6 @@ Tampon.Models.PostsTimes = Backbone.Model.extend({
 		});
 	}
 });
-
-
-
-/*
-function refreshPostingTimes(){
-
-	var date = new Date();
-	var secondsUpToNowToday = Tampon.Utils.Time.secondsFrom24HourTime({
-		hour: date.getHours(),
-		minute: date.getMinutes()
-	});
-
-
-	var times = JSON.parse(localStorage['times']);
-	// Let's find which scheduled time is the next one:
-	var i = _.sortedIndex(_.map(times, Tampon.Utils.Time.secondsFrom12HourTime), secondsUpToNowToday);
-	// So times[i] is the next scheduled time.
-	// More precisely: times[i % times.length]
-
-	// Let's also clear the Date headers (except Today which should always be here):
-	$(".timeline li.heading").not(".today").remove();
-	var day = 0;
-
-	$(".timeline li.post").each(function(){
-		if ((i % times.length == 0) && (i > 0)){
-			day++;
-			$(this).before('<li class="heading"><h3>' + Tampon.Utils.Time.formatDay(day) + '</h3></li>');
-		}
-		$(".post-time", this).text(Tampon.Utils.Time.format12HourTime(times[i % times.length]));
-		
-		// Now compute the UNIX timestamp for this time:
-		var then = new Date(date.getFullYear(), date.getMonth(), date.getDate() + day, 0, 0, Tampon.Utils.Time.secondsFrom12HourTime(times[i % times.length]));
-		// We use the fact that this method "expands" parameters.
-		// @todo: Check that this is documented and standard.
-		var timestamp = Tampon.Utils.Time.generateUnixTimestamp(then);
-		$(this).attr("data-timestamp", timestamp);
-		
-		i++;
-	});
-
-
-	// Temporary DOM adapter (should go when moving to Backbone):
-	var posts = [];
-	$(".timeline li.post").each(function(){
-		posts.push({
-			id:          $(this).attr('data-id'),
-			timestamp:   $(this).attr('data-timestamp')
-		});
-	});
-
-
-	$.post("api/times.php", {posts: posts}, null, "json").error(function(){
-		new Tampon.Views.Alert({type: "alert-error", content: "Something went wrong while updating your posts..."});
-	});
-}
-*/
 
 
 
