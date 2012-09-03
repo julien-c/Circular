@@ -510,6 +510,13 @@ Tampon.Models.PostsTimes = Backbone.Model.extend({
 });
 
 
+Tampon.Models.Stats = Backbone.Model.extend({
+	urlRoot: "api/stats.php",
+	initialize: function(options){
+		// Just ping the server when logged in
+		Tampon.events.on('loggedin', this.save, this);
+	}
+});
 
 
 Tampon.App = {
@@ -638,6 +645,10 @@ $(document).ready(function(){
 	
 	var poststimes = new Tampon.Models.PostsTimes({posts: posts, settings: settings});
 	
+	
+	
+	/* Initialize Stats */
+	new Tampon.Models.Stats();
 });
 
 
