@@ -1,12 +1,43 @@
-/* Application-wide styles */
+/* Application-wide styles and overrides to Bootstrap's CSS */
 
 body {
-	background: url('../images/subtle-pattern-5.jpg');
+	padding-top: 60px;
+	padding-bottom: 40px;
 	font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 input, button, select, textarea {
 	font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.hero-unit h1 {
+	font-size: 48px;
+}
+
+.hero-unit {
+	margin-bottom: 0px;
+	box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+}
+
+hr {
+	border-top-color: #AAA;
+	border-bottom-color: rgba(255,255,255,0.9);
+}
+
+.thumbnail {
+	border-color: #BBB;
+	background-color: #EEE;
+}
+
+.navbar .brand {
+	color: #FFF;
+	background: url('../images/tampon-logo.png') no-repeat 0px 7px;
+	padding-left: 32px;
+	margin-left: 0px;
+}
+
+body {
+	background: url('../images/subtle-pattern-5.jpg');
 }
 
 div.section {
