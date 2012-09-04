@@ -3,7 +3,6 @@
 body {
 	padding-top: 60px;
 	padding-bottom: 40px;
-	background: url('../images/subtle-pattern-5.jpg');
 }
 
 .hero-unit h1 {
@@ -12,5 +11,22 @@ body {
 
 .hero-unit {
 	margin-bottom: 0px;
+	box-shadow: 0 1px 5px rgba(0,0,0,0.1);
 }
 
+hr {
+	border-top-color: #AAA;
+	border-bottom-color: rgba(255,255,255,0.9);
+}
+
+.thumbnail {
+	border-color: #BBB;
+	background-color: #EEE;
+}
+
+.navbar .brand {
+	color: #FFF;
+	background: url('../images/tampon-logo.png') no-repeat 0px 7px;
+	padding-left: 32px;
+	margin-left: 0px;
+}

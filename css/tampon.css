@@ -1,5 +1,9 @@
 /* Application-wide styles */
 
+body {
+	background: url('../images/subtle-pattern-5.jpg');
+}
+
 div.section {
 	background-color: #FFF;
 	border: 1px solid #AAA;
@@ -7,6 +11,14 @@ div.section {
 	box-shadow: 0 1px 5px rgba(0,0,0,0.1);
 	padding: 20px;
 }
+
+.tampon-icon {
+	background: url('../images/tampon.png');
+	width: 16px;
+	height: 16px;
+	margin-top: -3px;
+}
+
 
 /* Not logged in */
 
