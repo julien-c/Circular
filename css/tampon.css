@@ -2,6 +2,11 @@
 
 body {
 	background: url('../images/subtle-pattern-5.jpg');
+	font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+input, button, select, textarea {
+	font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 div.section {
