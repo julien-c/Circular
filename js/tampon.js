@@ -291,6 +291,7 @@ Tampon.Views.Composer = Backbone.View.extend({
 		this.countdown();
 		
 		Tampon.events.on('loggedin', this.renderAvatar, this);
+		Tampon.events.on('posts:suggestpost', this.suggestpost, this);
 	},
 	renderAvatar: function(){
 		this.$(".avatar img").attr('src', Tampon.user.profile_image_url).attr('title', Tampon.user.name);
@@ -348,6 +349,11 @@ Tampon.Views.Composer = Backbone.View.extend({
 	resetComposer: function(){
 		this.$("#textarea").val("");
 		this.countdown();
+	},
+	suggestpost: function(){
+		var post = new Tampon.Models.Post();
+		this.$("#textarea").val(post.randomQuote());
+		this.countdown();
 	}
 });
 
@@ -358,7 +364,8 @@ Tampon.Views.Posts = Backbone.View.extend({
 	events: {
 		"mousedown .options .btn":  "hidetooltip",
 		"click .deletepost":        "deletepost",
-		"click .postnow":           "postnow"
+		"click .postnow":           "postnow",
+		"click #suggestpost":       "suggestpost",
 	},
 	initialize: function(){
 		// Initial fetch:
@@ -366,6 +373,10 @@ Tampon.Views.Posts = Backbone.View.extend({
 		
 		this.collection.on('add', this.renderPost, this);
 		this.collection.on('poststimes:refresh', this.renderPostsTimesAndHeadings, this);
+		
+		this.collection.on('reset',  this.checkEmptyView, this);
+		this.collection.on('add',    this.checkEmptyView, this);
+		this.collection.on('remove', this.checkEmptyView, this);
 	},
 	render: function(posts){
 		posts.each(this.renderPost, this);
@@ -411,6 +422,9 @@ Tampon.Views.Posts = Backbone.View.extend({
 			}
 		});
 	},
+	hidetooltip: function(e){
+		$(e.currentTarget).tooltip('hide');
+	},
 	deletepost: function(e){
 		e.preventDefault();
 		var post = $(e.currentTarget).closest("li.post");
@@ -438,8 +452,18 @@ Tampon.Views.Posts = Backbone.View.extend({
 		// Finally, remove from collection:
 		this.collection.remove(this.collection.get(id));
 	},
-	hidetooltip: function(e){
-		$(e.currentTarget).tooltip('hide');
+	suggestpost: function(){
+		Tampon.events.trigger('posts:suggestpost');
+	},
+	checkEmptyView: function(){
+		if (this.collection.length) {
+			this.$(".empty-timeline").hide();
+			this.$(".timeline").show();
+		}
+		else {
+			this.$(".empty-timeline").show();
+			this.$(".timeline").hide();
+		}
 	}
 });
 

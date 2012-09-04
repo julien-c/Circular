@@ -206,6 +206,21 @@ li.post:hover .update-body {
 }
 
 
+/* Empty Timeline */
+
+.empty-timeline {
+	background: url('../images/empty-timeline.png') no-repeat;
+	height: 300px;
+	text-align: center;
+	margin-top: 15px;
+}
+
+.empty-timeline h3 {
+	padding-top: 120px;
+	margin-bottom: 20px;
+}
+
+
 /* Settings */
 
 .settings {
