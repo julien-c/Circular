@@ -98,7 +98,7 @@ Tampon.Views.Alert = Backbone.View.extend({
 			this.template, 
 			{type: this.type, content: this.content}
 		);
-		this.$el.prepend(output);
+		$(output).prependTo(this.$el).delay(2000).fadeOut();
 		return this;
 	}
 });
