@@ -39,7 +39,8 @@ hr {
 }
 
 body {
-	background: url('../images/subtle-pattern-1.jpg');
+	/*background: url('../images/subtle-pattern-1.jpg');*/
+	background-color: #E3EAF4;
 }
 
 div.section {
@@ -71,7 +72,7 @@ div.github {
 
 .navbar-top {
 	height: 5px;
-	background-color: #66BC29;
+	background-color: #7FAFEE;
 }
 
 
