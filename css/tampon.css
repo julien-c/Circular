@@ -55,6 +55,7 @@ div.section {
 	width: 16px;
 	height: 16px;
 	margin-top: -3px;
+	display: inline-block;
 }
 
 .colophon {
