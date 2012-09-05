@@ -23,6 +23,7 @@ Prerequisites:
 
 Installation:
 
+* Make sure you cloned this repo recursively, i.e. with submodules that are in `extlib`
 * Create a new Twitter application on dev.twitter.com, then copy your credentials into `api/config.php.sample` and rename it to `api/config.php`
 * Your application's frontend should now be accessible where you set it up, for instance at `http://localhost/Tampon`. The MongoDB datastore's name will be `tampon` (you don't have to explicitly create it).
 * Start the daemon with `php Daemon/run.php` 
