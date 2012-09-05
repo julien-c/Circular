@@ -28,7 +28,7 @@ Installation:
 * Your application's frontend should now be accessible where you set it up, for instance at `http://localhost/Tampon`. The MongoDB datastore's name will be `tampon` (you don't have to explicitly create it).
 * Start the daemon with `php Daemon/run.php` 
   * Use option `-d` to run as daemon, i.e. detach and run in the background
-  * Your daemon's log will be in `Daemon/logs`. You can use/rotate this log to monitor your daemon.
+  * Your daemon's log will be in `/var/log/daemons/tampon`, or if this is not writable, in `Daemon/logs`. You can use/rotate this log to monitor your daemon.
 * That's it!
 
 
