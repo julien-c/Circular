@@ -1,7 +1,7 @@
 /* Application-wide styles and overrides to Bootstrap's CSS */
 
 body {
-	padding-top: 60px;
+	padding-top: 65px;
 	padding-bottom: 40px;
 	font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
@@ -67,6 +67,11 @@ div.github {
 	position: absolute;
 	top: 39px;
 	right: 0;
+}
+
+.navbar-top {
+	height: 5px;
+	background-color: #66BC29;
 }
 
 
