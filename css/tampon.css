@@ -75,6 +75,11 @@ div.github {
 	background-color: #7FAFEE;
 }
 
+.twitter-bird {
+	background: url('../images/twitter-bird.png') no-repeat;
+	padding-left: 30px;
+}
+
 
 /* Not logged in */
 
