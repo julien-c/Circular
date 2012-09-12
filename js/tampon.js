@@ -226,8 +226,8 @@ Tampon.Views.Settings = Backbone.View.extend({
 
 Tampon.Models.Post = Backbone.Model.extend({
 	initialize: function(attributes){
-		if (this.get('content') == "") {
-			this.set('content', this.randomQuote());
+		if (this.get('status') == "") {
+			this.set('status', this.randomQuote());
 		}
 		// We don't set the time now as it will be set after refreshing posting times
 	},
@@ -304,7 +304,7 @@ Tampon.Views.Composer = Backbone.View.extend({
 			new Tampon.Views.Alert({type: "alert-success", content: "This post has been successfully queued to be posted to Twitter"});
 		}, 500);
 		
-		var postnow = new Tampon.Models.Post({content: this.$("#textarea").val(), time: "now"});
+		var postnow = new Tampon.Models.Post({status: this.$("#textarea").val(), time: "now"});
 		// As this model is outside of the collection, we have to specify a urlRoot to save it to 
 		// (it's actually the same endpoint as the collection itself):
 		postnow.urlRoot = "api/posts.php";
@@ -313,7 +313,7 @@ Tampon.Views.Composer = Backbone.View.extend({
 		this.resetComposer();
 	},
 	addtoposts: function(){
-		this.collection.create({content: this.$("#textarea").val()}, {wait: true, error: this.errorSave});
+		this.collection.create({status: this.$("#textarea").val()}, {wait: true, error: this.errorSave});
 		// Wait for the server to respond with a Mongo id.
 		this.resetComposer();
 	},

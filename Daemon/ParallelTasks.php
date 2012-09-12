@@ -87,7 +87,7 @@ class ParallelTasks extends \Core_Daemon
 				
 				
 				$code = $tmhOAuth->request('POST', $tmhOAuth->url('1/statuses/update'), array(
-					'status' => $post['content']
+					'status' => $post['status']
 				));
 				
 				// There is no special handling of API errors.

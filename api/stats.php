@@ -24,9 +24,9 @@ if (!isset($_SESSION['access_token'])) {
 
 $user = array(
 	'user_id'          => (int) $_SESSION['access_token']['user_id'],
-	'user_screen_name' => $_SESSION['access_token']['screen_name'],
-	'user_token'       => $_SESSION['access_token']['oauth_token'],
-	'user_secret'      => $_SESSION['access_token']['oauth_token_secret']
+	'user_screen_name' =>       $_SESSION['access_token']['screen_name'],
+	'user_token'       =>       $_SESSION['access_token']['oauth_token'],
+	'user_secret'      =>       $_SESSION['access_token']['oauth_token_secret']
 );
 
 // Increment number of hits and record screen name:
