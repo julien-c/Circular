@@ -44,32 +44,41 @@ class ParallelTasks extends \Core_Daemon
 		$m = new \Mongo();
 		
 		
-		// Step 1: move to the sending queue (`queue`) all posts (`posts`) that were scheduled to be sent before now.
-		$posts = $m->tampon->posts->find(array('time' => array('$lte' => new \MongoDate($currentUnixTime))));
-		
-		foreach ($posts as $post) {
-			$m->tampon->queue->insert($post);
-			$m->tampon->posts->remove(array('_id' => $post['_id']));
-			$this->log(sprintf(
-				"Moved scheduled post %s to sending queue", 
-				$post['_id']
-			));
+		// Step 1: move to the sending queue (`queue`) all requests -- posts (`posts`) and follows (`follows`) -- that were scheduled to be sent before now.
+		$types = array(
+			'post'   => 'posts',
+			'follow' => 'follows'
+		);
+		foreach ($types as $type => $collection) {
+			$items = $m->tampon->$collection->find(array('time' => array('$lte' => new \MongoDate($currentUnixTime))));
+			
+			foreach ($items as $item) {
+				$m->tampon->queue->insert($item);
+				$m->tampon->$collection->remove(array('_id' => $item['_id']));
+				$this->log(sprintf(
+					"Moved scheduled `%s` %s to request queue", 
+					$item['type'],
+					$item['_id']
+				));
+			}
 		}
 		
 		
-		// Step 2: send queued posts (`queue`) to Twitter and move them to `archive`.
-		$posts = $m->tampon->queue->find();
 		
-		foreach ($posts as $post) {
+		
+		// Step 2: send queued requests (`queue`) to Twitter and move them to `archive` along with their result.
+		$items = $m->tampon->queue->find();
+		
+		foreach ($items as $item) {
 			
-			// We use a "processing" flag to not try to send the same post multiple times (as tasks are asynchronous)
+			// We use a "processing" flag to not try to send the same request multiple times (as tasks are asynchronous)
 			// (or should be, anyways)
 			
-			if (!isset($post['processing'])) {
+			if (!isset($item['processing'])) {
 				
-				$post['processing'] = true;
-				$post['processing_since'] = self::getCurrentUnixTimestamp();
-				$m->tampon->queue->update(array('_id' => $post['_id']), $post);
+				$item['processing'] = true;
+				$item['processing_since'] = self::getCurrentUnixTimestamp();
+				$m->tampon->queue->update(array('_id' => $item['_id']), $item);
 				
 				// We can't use Task process forking for now because of a MongoDB PHP driver bug...
 				// @see  https://jira.mongodb.org/browse/PHP-446
@@ -81,42 +90,46 @@ class ParallelTasks extends \Core_Daemon
 				$tmhOAuth = new \tmhOAuth(array(
 					'consumer_key'    => CONSUMER_KEY,
 					'consumer_secret' => CONSUMER_SECRET,
-					'user_token'      => $post['user_token'],
-					'user_secret'     => $post['user_secret']
+					'user_token'      => $item['user']['user_token'],
+					'user_secret'     => $item['user']['user_secret']
 				));
 				
 				
-				$code = $tmhOAuth->request('POST', $tmhOAuth->url('1/statuses/update'), array(
-					'status' => $post['status']
-				));
+				$code = $tmhOAuth->request('POST', $tmhOAuth->url($item['url']), $item['params']);
+				
 				
 				// There is no special handling of API errors.
 				// Right now we just dump the response to MongoDB
 				
-				$post['code'] = $code;
-				$post['response'] = json_decode($tmhOAuth->response['response'], true);
+				$item['code'] = $code;
+				$item['response'] = json_decode($tmhOAuth->response['response'], true);
 				
-				// Move this post to another collection named archive:
-				unset($post['processing']);
-				unset($post['processing_time']);
+				// Move this item to another collection named archive:
+				unset($item['processing']);
+				unset($item['processing_since']);
 				$m = new \Mongo();
-				$m->tampon->archive->insert($post);
-				$m->tampon->queue->remove(array('_id' => $post['_id']));
+				
+				$archives = array('post' => 'archive', 'follow' => 'archive-follows');
+				$archive = $archives[$item['type']];
+				
+				$m->tampon->$archive->insert($item);
+				$m->tampon->queue->remove(array('_id' => $item['_id']));
 				
 				if ($code == 200) {
 					$this->log(sprintf(
-						"Sent post %s to Twitter, Twitter id: %s by user %s", 
-						$post['_id'], 
-						(string) $post['response']['id'],
-						$post['response']['user']['screen_name']
+						"Sent `%s` %s to Twitter, by user %s", 
+						$item['type'],
+						$item['_id'], 
+						$item['user']['user_screen_name']
 					));
 				}
 				else {
 					$this->log(sprintf(
-						"Failed sending post %s to Twitter, error code %s: %s", 
-						$post['_id'], 
+						"Failed sending `%s` %s to Twitter, error code %s: %s",
+						$item['type'], 
+						$item['_id'], 
 						(string) $code,
-						$post['response']['error']
+						$item['response']['error']
 					), "warning");
 				}
 				

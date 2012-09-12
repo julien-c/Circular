@@ -39,23 +39,28 @@ switch ($_SERVER['REQUEST_METHOD']) {
 		
 		// Retrieve all posts by current user, sorted by time ascending:
 		$m = new Mongo();
-		$posts = $m->tampon->posts->find(array('user_id' => $user['user_id']))->sort(array('time' => 1));
+		$posts = $m->tampon->posts->find(array('user.user_id' => $user['user_id']))->sort(array('time' => 1));
 		
 		$out = array();
 		
 		foreach ($posts as $post) {
-			unset($post['user_id']);
-			unset($post['user_screen_name']);
-			unset($post['user_token']);
-			unset($post['user_secret']);
+			// Don't expose authentication info through the API:
+			unset($post['user']);
+			// Don't display Twitter request info either:
+			unset($post['url']);
+			unset($post['type']);
+			
 			
 			// Translation layer/adapter for Backbone:
 			// XXX: Use the exact same data in Backbone as in Mongo
+			// @see http://stackoverflow.com/questions/12390553/how-to-make-backbones-and-mongodbs-ids-work-seamlessly
 			$post['id'] = (string) $post['_id'];
 			unset($post['_id']);
 			if (isset($post['time'])) {
 				$post['time'] = $post['time']->sec;
 			}
+			$post['status'] = $post['params']['status'];
+			unset($post['params']['status']);
 			
 			$out[] = $post;
 		}
@@ -74,8 +79,16 @@ switch ($_SERVER['REQUEST_METHOD']) {
 		$post = json_decode(file_get_contents('php://input'), true);
 		
 		// Add user information:
-		$post = array_merge($post, $user);
+		$post['user'] = $user;
+		// Add Twitter request info:
+		$post['url'] = '1/statuses/update';
+		$post['type'] = 'post';
 		
+		// Nest status into `params`:
+		$post['params'] = array('status' => $post['status']);
+		unset($post['status']);
+		// XXX: Apparently Backbone has poor support for nested attributes
+		// @see http://stackoverflow.com/questions/6351271/backbone-js-get-and-set-nested-object-attribute
 		
 		$m = new Mongo();
 		
@@ -104,7 +117,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
 			// Looks like a valid MongoId
 			
 			$m = new Mongo();
-			$m->tampon->posts->remove(array('_id' => new MongoId($id), 'user_id' => $user['user_id']));
+			$m->tampon->posts->remove(array('_id' => new MongoId($id), 'user.user_id' => $user['user_id']));
 			// We only delete the post if it is owned by the current user.
 		}
 		else {
@@ -130,7 +143,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
 			if (isset($put['time']) && $put['time'] == "now") {
 				
 				$m = new Mongo();
-				$post = $m->tampon->posts->findOne(array('_id' => new MongoId($id), 'user_id' => $user['user_id']));
+				$post = $m->tampon->posts->findOne(array('_id' => new MongoId($id), 'user.user_id' => $user['user_id']));
 				// We only update the post if it is owned by the current user.
 				
 				if ($post) {
