@@ -21,7 +21,7 @@ input, button, select, textarea {
 }
 
 hr {
-	border-top-color: #CCC;
+	border-top-color: rgba(10, 80, 195, 0.2);
 	border-bottom-color: rgba(255,255,255,0.9);
 }
 
@@ -61,7 +61,7 @@ div.section {
 
 .colophon {
 	font-weight: 300;
-	color: #888;
+	color: #828CA7;
 }
 
 div.github {
@@ -267,6 +267,7 @@ li.post:hover .update-body {
 .empty-timeline h3 {
 	padding-top: 120px;
 	margin-bottom: 20px;
+	font-weight: 200;
 }
 
 
