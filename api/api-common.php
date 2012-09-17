@@ -2,6 +2,9 @@
 
 header('Content-type: application/json');
 
+require 'config.php';
+
+
 // All endpoints require authentication:
 
 session_start();

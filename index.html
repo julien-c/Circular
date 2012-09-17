@@ -108,9 +108,25 @@
 					
 					<textarea class="input-xlarge" id="textarea" rows="3" placeholder="Write your post here"></textarea>
 					
+					<div class="attachments">
+						<div class="picturezone" style="display:none;">
+							<button class="close">&times;</button>
+							<img class="picture thumbnail" src="">
+						</div>
+						
+						<div class="dropzone" style="display:none;">
+							Drag a picture here to upload!
+						</div>
+					</div>
+					
 					<div class="form-actions">
-						<button id="postnow" class="btn postnow" data-loading-text="Posting...">Post now</button>
-						<button id="addtoposts" type="submit" class="btn btn-primary" title="(⌘+enter)">Add to Tampon</button>
+						<div class="pull-left">
+							<button id="addpicture" class="btn" title="Upload a photo or picture" rel="tooltip"><i class="icon-camera"></i></button>
+						</div>
+						<div class="pull-right">
+							<button id="postnow" class="btn postnow" data-loading-text="Posting...">Post now</button>
+							<button id="addtoposts" type="submit" class="btn btn-primary" title="(⌘+enter)">Add to Tampon</button>
+						</div>
 					</div>
 				</div>
 				
@@ -202,6 +218,13 @@
 						<a class="btn deletepost" href="#" title="Delete this post" rel="tooltip"><i class="icon-remove"></i></a>
 					</div>
 				</div>
+				{{#picture}}
+				<div class="post-attachments">
+					<a href="{{picture.url}}" target="_blank">
+						<img class="picture thumbnail" src="{{picture.thumbnail}}">
+					</a>
+				</div>
+				{{/picture}}
 			</li>
 		</script>
 		
@@ -230,6 +253,7 @@
 		<script src="bootstrap/js/bootstrap.js"></script>
 		<script src="js/jquery-ui-1.8.22.custom.min.js"></script>
 		<script src="js/jquery.hotkeys.js"></script>
+		<script src="js/jquery.filedrop.js"></script>
 		<script src="js/spin.min.js"></script>
 		<script src="js/jstz.min.js"></script>
 		<script src="js/mustache.js"></script>

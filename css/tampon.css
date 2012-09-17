@@ -109,18 +109,19 @@ div.github {
 }
 
 .composer .form-actions {
-	text-align: right;
 	margin-top: 0px;
 	margin-bottom: 4px;
 	padding-top: 10px;
 	padding-bottom: 10px;
+	padding-left: 14px;
 }
 
 
 .profile.avatar span{
 	position:absolute;
 	display:block;
-	width:16px;height:16px;
+	width:16px;
+	height:16px;
 	background-image:url('../images/network-icons.png');
 	background-repeat:no-repeat;
 	right:0;
@@ -151,6 +152,36 @@ div.github {
 	color: #D40D12;
 }
 
+.attachments > div {
+	margin-bottom: 6px;
+	background-color: #FAFAFA;
+}
+
+.dropzone {
+	padding: 20px 10px;
+	text-align: center;
+	font-size: 18px;
+	font-weight: 300;
+}
+
+.dropzone.over {
+	background-color: #D6F2D0;
+	color: #000;
+}
+
+.picturezone {
+	padding: 10px 10px;
+}
+
+img.picture {
+	box-shadow: 0 1px 5px rgba(0,0,0,0.2);
+}
+
+.picturezone img {
+	max-width: 80px;
+}
+
+
 
 /* Timeline */
 
@@ -169,7 +200,7 @@ li.heading {
 
 li.post {
 	position: relative;
-	padding: 10px 170px 22px 140px;
+	padding: 10px 170px 16px 140px;
 	border-bottom: 1px solid #EBEBEB;
 	line-height: 22px;
 	font-size: 15px;
@@ -196,6 +227,10 @@ div.options {
 	right: 20px;
 	padding: 10px 0px;
 	opacity: 0.5;
+}
+
+.update-body {
+	margin-bottom: 6px;
 }
 
 li.post:hover div.options {

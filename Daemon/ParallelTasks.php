@@ -95,13 +95,58 @@ class ParallelTasks extends \Core_Daemon
 				));
 				
 				
-				$code = $tmhOAuth->request('POST', $tmhOAuth->url($item['url']), $item['params']);
+				// If we're sending a picture, we need to make a multipart request:
+				if ($item['type'] == 'post_with_media') {
+					$multipart = true;
+					
+					// Add inline media[] parameter if we're sending a picture:
+					// @see https://dev.twitter.com/docs/api/1/post/statuses/update_with_media
+					
+					$image = file_get_contents($item['picture']['url']);
+					
+					$filename  = basename($item['picture']['url']);
+					
+					$extension = pathinfo($filename, PATHINFO_EXTENSION);
+					$mimetypes = array(
+						'jpg'  => 'image/jpeg',
+						'jpeg' => 'image/jpeg',
+						'png'  => 'image/png',
+						'gif'  => 'image/gif'
+					);
+					if (isset($mimetypes[$extension])) {
+						$mimetype = $mimetypes[$extension];
+					}
+					else {
+						// Sensible default?
+						$mimetype = "image/jpeg";
+					}
+					
+					$item['params']['media[]'] = "$image;type=$mimetype;filename=$filename";
+					
+					$url = $item['url'];
+				}
+				else {
+					$multipart = false;
+					
+					$url = $tmhOAuth->url($item['url']);
+				}
 				
+				
+				
+				$code = $tmhOAuth->request('POST', $url, $item['params'], true, $multipart);
+				
+				
+				
+				if ($item['type'] == 'post_with_media') {
+					// Don't store raw binary images:
+					unset($item['params']['media[]']);
+				}
 				
 				// There is no special handling of API errors.
 				// Right now we just dump the response to MongoDB
 				
 				$item['code'] = $code;
+				
 				$item['response'] = json_decode($tmhOAuth->response['response'], true);
 				
 				// Move this item to another collection named archive:
@@ -109,7 +154,7 @@ class ParallelTasks extends \Core_Daemon
 				unset($item['processing_since']);
 				$m = new \Mongo();
 				
-				$archives = array('post' => 'archive', 'follow' => 'archive-follows');
+				$archives = array('post' => 'archive', 'follow' => 'archive-follows', 'post_with_media' => 'archive');
 				$archive = $archives[$item['type']];
 				
 				$m->tampon->$archive->insert($item);
