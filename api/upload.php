@@ -16,13 +16,30 @@ if (!isset($_FILES['userfile']['tmp_name'])) {
 }
 
 
-$filename = 'uploads/' . $user['user_id'] . '/' . md5_file($_FILES['userfile']['tmp_name']) . '.' . pathinfo($_FILES['userfile']['name'], PATHINFO_EXTENSION);
+$extension = pathinfo($_FILES['userfile']['name'], PATHINFO_EXTENSION);
+if (!$extension) {
+	if (isset($_FILES['userfile']['type'])) {
+		// e.g. "image/png"
+		$extension = substr($_FILES['userfile']['type'], strpos($_FILES['userfile']['type'], "/") + 1);
+	}
+	else {
+		// Sensible default?
+		$extension = "jpg";
+	}
+}
+
+
+
+$filename = 'uploads/' . $user['user_id'] . '/' . md5_file($_FILES['userfile']['tmp_name']) . '.' . $extension;
 $filepath = '../' . $filename;
 $fileurl  = APP_URL . $filename;
 
-$thumbnailname = 'uploads/' . $user['user_id'] . '/' . md5_file($_FILES['userfile']['tmp_name']) . '.100x100' . '.' . pathinfo($_FILES['userfile']['name'], PATHINFO_EXTENSION);
+$thumbnailname = 'uploads/' . $user['user_id'] . '/' . md5_file($_FILES['userfile']['tmp_name']) . '.100x100' . '.' . $extension;
 $thumbnailpath = '../' . $thumbnailname;
 $thumbnailurl  = APP_URL . $thumbnailname;
+
+
+
 
 
 if (!is_dir(pathinfo($filepath, PATHINFO_DIRNAME))) {
