@@ -116,7 +116,6 @@ div.github {
 	padding-left: 14px;
 }
 
-
 .profile.avatar span{
 	position:absolute;
 	display:block;
@@ -132,12 +131,33 @@ div.github {
 	background-position:0 0;
 }
 
+.profile.avatar img {
+	border-radius: 4px;
+}
+
 .profile {
 	position: relative;
 	width: 48px;
 	height: 48px;
 	margin-bottom: 5px;
+	margin-right: 6px;
 	float: left;
+}
+
+.connect-account {
+	float: left;
+	background: url('../images/add_account.png') no-repeat 0px 11px;
+	padding: 9px 9px 9px 34px;
+	margin-left: 12px;
+	width: 100px;
+	line-height: 13px;
+	font-size: 13px;
+	cursor: pointer;
+	opacity: 0.4;
+}
+
+.connect-account:hover {
+	opacity: 1;
 }
 
 .countdown {
