@@ -45,9 +45,9 @@ body {
 
 div.section {
 	background-color: #FFF;
-	border: 1px solid #DDD;
+	border: 1px solid #B8CCE9;
 	border-radius: 8px;
-	box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+	box-shadow: 0 2px 6px rgba(10,10,60,0.1);
 	padding: 20px;
 }
 
@@ -100,6 +100,7 @@ div.github {
 
 .composer textarea {
 	font-size: 18px;
+	font-weight: 300;
 	width: 100%;
 	margin-bottom: 6px;
 	/* http://css-tricks.com/box-sizing/ */
@@ -139,9 +140,30 @@ div.github {
 	position: relative;
 	width: 48px;
 	height: 48px;
-	margin-bottom: 5px;
+	margin-bottom: 10px;
 	margin-right: 6px;
 	float: left;
+	border-radius: 4px;
+}
+
+.composer .profile {
+	opacity: 0.5;
+	cursor: pointer;
+}
+
+.composer .profile:hover {
+	opacity: 0.8;
+}
+
+.composer .profile.selected {
+	opacity: 1;
+	border-bottom: 4px solid #5ba525;
+	margin-bottom: 6px;
+}
+
+.composer .profile.selected img {
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
 }
 
 .connect-account {
@@ -201,6 +223,84 @@ img.picture {
 	max-width: 80px;
 }
 
+
+/* Tabs */
+
+div.section.tab-inner {
+	border-top-left-radius: 0;
+	position: relative;
+	z-index: 1;
+}
+
+ul.tabs {
+	list-style: none;
+	margin: 0;
+	margin-bottom: -4px;
+}
+
+ul.tabs li.tab {
+	float: left;
+	cursor: pointer;
+	margin-right: 4px;
+	padding: 6px 10px 7px;
+	border: 1px solid #B8CCE9;
+	border-radius: 8px 8px 0 0;
+	border-bottom: 0;
+	min-width: 90px;
+	
+	background-image: -webkit-gradient(linear, left top, left bottom, from(#ECECEC), to(#FBFBFB)); /* Safari 4+, Chrome */
+	background-image: -webkit-linear-gradient(top, #ECECEC, #FBFBFB); /* Chrome 10+, Safari 5.1+, iOS 5+ */
+	background-image:    -moz-linear-gradient(top, #ECECEC, #FBFBFB); /* Firefox 3.6-15 */
+	background-image:      -o-linear-gradient(top, #ECECEC, #FBFBFB); /* Opera 11.10-12.00 */
+	background-image:         linear-gradient(to bottom, #ECECEC, #FBFBFB); /* Firefox 16+, IE10, Opera 12.50+ */
+	position: relative;
+	z-index: 0;
+	margin-top: 3px;
+}
+
+ul.tabs li.tab.selected {
+	background-image: none;
+	background-color: #FFF;
+	position: relative;
+	z-index: 10;
+	margin-top: 0;
+}
+
+ul.tabs .profile img {
+	width: 30px;
+	height: 30px;
+}
+
+.profile.twitter span.small {
+	background-position: -18px 0;
+}
+
+.profile.avatar span.small {
+	width: 12px;
+	height: 13px;
+	top: 18px;
+}
+
+ul.tabs span.profile {
+	width: 30px;
+	height: 30px;
+	margin-bottom: 4px;
+	margin-top: 2px;
+	margin-right: 10px;
+}
+
+span.tab-meta {
+	float: left;
+}
+
+span.tab-username, span.tab-updates {
+	display: block;
+}
+
+span.tab-updates {
+	color: #A7A7A7;
+	font-size: 11px;
+}
 
 
 /* Timeline */

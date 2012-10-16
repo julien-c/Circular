@@ -99,12 +99,9 @@
 				
 				<div class="composer section">
 					
-					<div class="profile avatar twitter">
-						<img src="" title="">
-						<span></span>
-					</div>
+					<div id="profiles"></div>
 					
-					<!-- <div class="connect-account">Connect Account</div> -->
+					<div class="connect-account">Connect Account</div>
 					
 					<div class="countdown"></div>
 					
@@ -136,7 +133,38 @@
 				<div class="posts">
 					<h2>Pending posts</h2>
 					
-					<div class="section">
+					<div class="tab-wrapper">
+						<ul class="tabs clearfix">
+							<li class="tab selected">
+								<span class="profile avatar twitter">
+									<img src="https://si0.twimg.com/profile_images/2596434219/6z6x1xyurbhsg2xeuskj_normal.png">
+									<span class="small"></span>
+								</span>
+								<span class="tab-meta">
+									<span class="tab-username">TamponApp</span>
+									<span class="tab-updates">
+										<span class="tab-count">3</span> posts
+									</span>
+								</span>
+							</li>
+							
+							
+							<li class="tab">
+								<span class="profile avatar twitter">
+									<img src="http://a0.twimg.com/profile_images/2149647940/Julien-Chaumond-crop_normal.jpg">
+									<span class="small"></span>
+								</span>
+								<span class="tab-meta">
+									<span class="tab-username">julien_c</span>
+									<span class="tab-updates">
+										<span class="tab-count">0</span> posts
+									</span>
+								</span>
+							</li>
+						</ul>
+					</div>
+					
+					<div class="section tab-inner">
 						<div class="empty-timeline" style="display:none;">
 							<h3>All your posts have been sent! Time to top up?</h3>
 							<button id="suggestpost" class="btn btn-success btn-large">Suggest a post</button>
@@ -248,6 +276,15 @@
 			</p>
 		</script>
 		
+		<script id="tpl-profile" type="text/html">
+			<div class="profile avatar twitter {{selected}}" 
+				 data-title-selected="Deselect @{{user_screen_name}}" 
+				 data-title-select="Post to @{{user_screen_name}}" 
+				 rel="tooltip">
+				<img src="{{profile_image_url}}" title="{{name}}">
+				<span></span>
+			</div>
+		</script>
 		
 		<!-- Scripts -->
 		
