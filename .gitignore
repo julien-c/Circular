@@ -6,3 +6,5 @@ api/config.php
 *.daemon_lock
 
 uploads/
+
+api/vendor/
