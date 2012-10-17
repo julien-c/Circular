@@ -130,7 +130,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
 			
 			$put = json_decode(file_get_contents('php://input'), true);
 			
-			// The only possible update right now is "Post now" on a scheduled post:
+			// The only possible update right now is clicking "Post now" on a scheduled post:
 			
 			if (isset($put['time']) && $put['time'] == "now") {
 				
