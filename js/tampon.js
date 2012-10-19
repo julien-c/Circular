@@ -260,7 +260,7 @@ Tampon.Models.Post = Backbone.Model.extend({
 
 
 Tampon.Collections.Posts = Backbone.Collection.extend({
-	url: "api/posts.php",
+	url: "api/posts",
 	model: Tampon.Models.Post,
 	initialize: function(){
 		Tampon.events.on('ui:posts:sort', this.refreshPostsOrder, this);
@@ -338,6 +338,14 @@ Tampon.Views.Composer = Backbone.View.extend({
 		}
 		return post;
 	},
+	getPostsToSave: function(){
+		var post = this.postdata();
+		return _.map(this.getSelectedProfiles(), function(id){
+			var p = _.clone(post);
+			p.user = id;
+			return p;
+		});
+	},
 	postnow: function(e){
 		var btn = $(e.target);
 		Tampon.events.trigger('button:setstate', btn, 'loading');
@@ -346,20 +354,21 @@ Tampon.Views.Composer = Backbone.View.extend({
 			new Tampon.Views.Alert({type: "alert-success", content: "This post has been successfully queued to be posted to Twitter"});
 		}, 500);
 		
-		var post = this.postdata();
-		post.time = "now";
-		var postnow = new Tampon.Models.Post(post);
-		// As this model is outside of the collection, we have to specify a urlRoot to save it to 
-		// (it's actually the same endpoint as the collection itself):
-		postnow.urlRoot = "api/posts.php";
-		postnow.save();
-		
+		_.each(this.getPostsToSave(), function(post){
+			post.time = "now";
+			var postnow = new Tampon.Models.Post(post);
+			// As this model is outside of the collection, we have to specify a urlRoot to save it to 
+			// (it's actually the same endpoint as the collection itself):
+			postnow.urlRoot = "api/posts";
+			postnow.save();
+		});
 		this.resetComposer();
 	},
 	addtoposts: function(){
-		var post = this.postdata();
-		this.collection.create(post, {wait: true, error: this.errorSave});
-		// Wait for the server to respond with a Mongo id.
+		_.each(this.getPostsToSave(), function(post){
+			this.collection.create(post, {wait: true, error: this.errorSave});
+			// Wait for the server to respond with a Mongo id.
+		}, this);
 		this.resetComposer();
 	},
 	errorSave: function(){
@@ -434,6 +443,14 @@ Tampon.Views.Composer = Backbone.View.extend({
 		});
 		Tampon.users[id].selected = 'selected';
 		this.renderAvatars();
+	},
+	getSelectedProfiles: function(){
+		return _.pluck(
+			_.filter(Tampon.users, function(user){
+				return user.selected == 'selected';
+			}),
+			'id'
+		);
 	}
 });
 
@@ -564,7 +581,7 @@ Tampon.Views.Posts = Backbone.View.extend({
 
 
 Tampon.Models.PostsTimes = Backbone.Model.extend({
-	urlRoot: "api/times.php",
+	urlRoot: "api/times",
 	initialize: function(options){
 		this.posts    = options.posts;
 		this.settings = options.settings;
@@ -622,18 +639,16 @@ Tampon.Models.PostsTimes = Backbone.Model.extend({
 		});
 		
 		// Now save to server:
-		$.post(this.urlRoot, {posts: posts}, null, "json").error(function(){
-			new Tampon.Views.Alert({type: "alert-error", content: "Something went wrong while updating your posts..."});
+		$.ajax({
+			url: this.urlRoot,
+			type: 'POST',
+			data: JSON.stringify({posts: posts}), 
+			contentType: 'application/json',
+			dataType: 'json',
+			error: function(){
+				new Tampon.Views.Alert({type: "alert-error", content: "Something went wrong while updating your posts..."});
+			}
 		});
-	}
-});
-
-
-Tampon.Models.Stats = Backbone.Model.extend({
-	urlRoot: "api/stats.php",
-	initialize: function(options){
-		// Just ping the server when logged in
-		Tampon.events.on('loggedin', this.save, this);
 	}
 });
 
@@ -763,7 +778,9 @@ $(document).ready(function(){
 	/* Initialize Composer and Posts */
 	
 	var posts = new Tampon.Collections.Posts();
-	posts.fetch();
+	Tampon.events.on('loggedin', function(){
+		posts.fetch();
+	});
 	
 	new Tampon.Views.Composer({collection: posts});
 	
@@ -774,10 +791,6 @@ $(document).ready(function(){
 	
 	var poststimes = new Tampon.Models.PostsTimes({posts: posts, settings: settings});
 	
-	
-	
-	/* Initialize Stats */
-	new Tampon.Models.Stats();
 });
 
 
