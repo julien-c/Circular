@@ -3,7 +3,8 @@ window.Tampon = {
 	Collections: {},
 	Views:       {},
 	events:      _.clone(Backbone.Events),
-	user:        null
+	account:     null,
+	users:       null
 };
 
 
@@ -296,6 +297,7 @@ Tampon.Views.Composer = Backbone.View.extend({
 		
 		Tampon.events.on('loggedin', this.renderAvatars, this);
 		Tampon.events.on('posts:suggestpost', this.suggestpost, this);
+		Tampon.events.on('tab:selected', this.selectProfile, this);
 		
 		$(".dropzone").filedrop({
 			url: "api/upload.php",
@@ -317,9 +319,8 @@ Tampon.Views.Composer = Backbone.View.extend({
 		});
 	},
 	renderAvatars: function(){
-		// Select the first profile by default:
-		_.first(Tampon.user.users).selected = 'selected';
-		_.each(Tampon.user.users, function(user){
+		this.$("#profiles").html('');
+		_.each(Tampon.users, function(user){
 			var output = Mustache.render(this.templateAvatar, user);
 			if (user.selected) {
 				output = $(output).attr('title', $(output).attr('data-title-selected'));
@@ -422,6 +423,17 @@ Tampon.Views.Composer = Backbone.View.extend({
 		profile.tooltip('hide');
 		profile.data('tooltip', false);
 		profile.tooltip('show');
+		// Update Tampon.users itself:
+		var id = profile.attr('data-id');
+		Tampon.users[id].selected = (Tampon.users[id].selected) ? undefined : 'selected';
+	},
+	selectProfile: function(id){
+		// Select this and only this profile:
+		_.each(Tampon.users, function(user){
+			user.selected = undefined;
+		});
+		Tampon.users[id].selected = 'selected';
+		this.renderAvatars();
 	}
 });
 
@@ -429,6 +441,7 @@ Tampon.Views.Composer = Backbone.View.extend({
 Tampon.Views.Posts = Backbone.View.extend({
 	el: ".posts",
 	template: $("#tpl-post").html(),
+	templateTab: $("#tpl-tab").html(),
 	events: {
 		"mousedown .options .btn":  "hidetooltip",
 		"click .deletepost":        "deletepost",
@@ -446,6 +459,8 @@ Tampon.Views.Posts = Backbone.View.extend({
 		this.collection.on('reset',  this.checkEmptyView, this);
 		this.collection.on('add',    this.checkEmptyView, this);
 		this.collection.on('remove', this.checkEmptyView, this);
+		
+		Tampon.events.on('loggedin', this.renderTabs, this);
 	},
 	render: function(posts){
 		posts.each(this.renderPost, this);
@@ -533,6 +548,12 @@ Tampon.Views.Posts = Backbone.View.extend({
 			this.$(".empty-timeline").show();
 			this.$(".timeline").hide();
 		}
+	},
+	renderTabs: function(){
+		_.each(Tampon.users, function(user){
+			var output = Mustache.render(this.templateTab, user);
+			this.$("ul.tabs").append(output);
+		}, this);
 	},
 	selectTab: function(e){
 		this.$('.tab').removeClass('selected');
@@ -628,11 +649,21 @@ Tampon.App = {
 		$.get("api/oauth.php", null, function(data){
 			spinner.stop();
 			if (data && data.id) {
-				// We have a signed-in user
+				// We have a signed-in account
 				$(".not-logged-in").hide();
 				$(".logged-in").show();
-				// Store logged in user's data into Tampon.user:
-				Tampon.user = data;
+				// Store logged in data:
+				Tampon.account = data.id;
+				Tampon.users   = data.users;
+				// Select the first user by default:
+				// Too bad there's no _.first() function that works on an object-type collection.
+				var i = 1;
+				_.each(Tampon.users, function(user){
+					if (i == 1) {
+						user.selected = 'selected';
+					}
+					i++;
+				});
 				// Trigger "logged in" event:
 				Tampon.events.trigger('loggedin');
 			}

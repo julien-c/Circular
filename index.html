@@ -101,7 +101,7 @@
 					
 					<div id="profiles"></div>
 					
-					<div class="connect-account">Connect Account</div>
+					<div class="connect-account signin">Connect Account</div>
 					
 					<div class="countdown"></div>
 					
@@ -135,32 +135,6 @@
 					
 					<div class="tab-wrapper">
 						<ul class="tabs clearfix">
-							<li class="tab selected">
-								<span class="profile avatar twitter">
-									<img src="https://si0.twimg.com/profile_images/2596434219/6z6x1xyurbhsg2xeuskj_normal.png">
-									<span class="small"></span>
-								</span>
-								<span class="tab-meta">
-									<span class="tab-username">TamponApp</span>
-									<span class="tab-updates">
-										<span class="tab-count">3</span> posts
-									</span>
-								</span>
-							</li>
-							
-							
-							<li class="tab">
-								<span class="profile avatar twitter">
-									<img src="http://a0.twimg.com/profile_images/2149647940/Julien-Chaumond-crop_normal.jpg">
-									<span class="small"></span>
-								</span>
-								<span class="tab-meta">
-									<span class="tab-username">julien_c</span>
-									<span class="tab-updates">
-										<span class="tab-count">0</span> posts
-									</span>
-								</span>
-							</li>
 						</ul>
 					</div>
 					
@@ -278,12 +252,28 @@
 		
 		<script id="tpl-profile" type="text/html">
 			<div class="profile avatar twitter {{selected}}" 
+				 data-id="{{id}}"
 				 data-title-selected="Deselect @{{user_screen_name}}" 
 				 data-title-select="Post to @{{user_screen_name}}" 
 				 rel="tooltip">
 				<img src="{{profile_image_url}}" title="{{name}}">
 				<span></span>
 			</div>
+		</script>
+		
+		<script id="tpl-tab" type="text/html">
+			<li class="tab {{selected}}" data-id="{{id}}">
+				<span class="profile avatar twitter">
+					<img src="{{profile_image_url}}">
+					<span class="small"></span>
+				</span>
+				<span class="tab-meta">
+					<span class="tab-username">{{user_screen_name}}</span>
+					<span class="tab-updates">
+						<span class="tab-count">0</span> posts
+					</span>
+				</span>
+			</li>
 		</script>
 		
 		<!-- Scripts -->
