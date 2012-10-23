@@ -503,7 +503,6 @@ Tampon.Views.Posts = Backbone.View.extend({
 			this.formatTime(post);
 		}
 		var output = Mustache.render(this.template, post.toJSON());
-		this.$(".timeline").append(output);
 		this.$("#timeline-"+post.get('user')).find(".timeline").append(output);
 	},
 	formatTime: function(post){
@@ -529,14 +528,6 @@ Tampon.Views.Posts = Backbone.View.extend({
 		// Let's first clear the Date headers (except Today which should always be here):
 		this.$(".timeline li.heading").not(".today").remove();
 		
-		var day = 0;
-		
-		this.collection.each(function(post){
-			// We assume the collection is ordered by time (it always should be)
-			if (post.local12HourTimeAndDay.day > day) {
-				day = post.local12HourTimeAndDay.day;
-				$("#post-"+post.id).before('<li class="heading"><h3>' + Tampon.Utils.Time.formatDay(day) + '</h3></li>');
-			}
 		_.each(this.collection.getPostsByUser(), function(posts, user){
 			
 			var day = 0;
@@ -612,7 +603,6 @@ Tampon.Views.Posts = Backbone.View.extend({
 	selectTab: function(e){
 		this.$('.tab').removeClass('selected');
 		$(e.currentTarget).addClass('selected');
-		Tampon.events.trigger('tab:selected', $(e.currentTarget).attr('data-id'));
 		var id = $(e.currentTarget).attr('data-id');
 		this.$('.timeline-tab').hide();
 		this.$('#timeline-'+id).show();
