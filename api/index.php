@@ -95,7 +95,9 @@ $app->get('/posts', function () use ($app) {
 		$out[] = $post;
 	}
 	
-	return $app->json($out);
+	echo json_encode($out);
+	// @fixme
+	// return $app->json($out);
 });
 
 

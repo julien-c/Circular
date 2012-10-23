@@ -273,6 +273,20 @@ Tampon.Collections.Posts = Backbone.Collection.extend({
 			return _.indexOf(order, post.id);
 		});
 		Tampon.events.trigger('posts:sort', order);
+	},
+	getPostsByUser: function(){
+		// @fixme
+		// Is there an underscore helper for this?
+		var out = {}; 
+		this.each(function(post){
+			if (out[post.get('user')]) {
+				out[post.get('user')].push(post);
+			}
+			else {
+				out[post.get('user')] = [post];
+			}
+		});
+		return out;
 	}
 });
 
@@ -459,6 +473,7 @@ Tampon.Views.Posts = Backbone.View.extend({
 	el: ".posts",
 	template: $("#tpl-post").html(),
 	templateTab: $("#tpl-tab").html(),
+	templateTimeline: $("#tpl-timeline").html(),
 	events: {
 		"mousedown .options .btn":  "hidetooltip",
 		"click .deletepost":        "deletepost",
@@ -489,6 +504,7 @@ Tampon.Views.Posts = Backbone.View.extend({
 		}
 		var output = Mustache.render(this.template, post.toJSON());
 		this.$(".timeline").append(output);
+		this.$("#timeline-"+post.get('user')).find(".timeline").append(output);
 	},
 	formatTime: function(post){
 		// This function is called on each post, after the initial fetch, or after each times refresh.
@@ -521,6 +537,17 @@ Tampon.Views.Posts = Backbone.View.extend({
 				day = post.local12HourTimeAndDay.day;
 				$("#post-"+post.id).before('<li class="heading"><h3>' + Tampon.Utils.Time.formatDay(day) + '</h3></li>');
 			}
+		_.each(this.collection.getPostsByUser(), function(posts, user){
+			
+			var day = 0;
+			
+			_.each(posts, function(post){
+				// We assume the collection is ordered by time (it always should be)
+				if (post.local12HourTimeAndDay.day > day) {
+					day = post.local12HourTimeAndDay.day;
+					$("#post-"+post.id).before('<li class="heading"><h3>' + Tampon.Utils.Time.formatDay(day) + '</h3></li>');
+				}
+			});
 		});
 	},
 	hidetooltip: function(e){
@@ -567,15 +594,29 @@ Tampon.Views.Posts = Backbone.View.extend({
 		}
 	},
 	renderTabs: function(){
+		// Tabs:
 		_.each(Tampon.users, function(user){
 			var output = Mustache.render(this.templateTab, user);
 			this.$("ul.tabs").append(output);
+		}, this);
+		// Tab contents (timelines):
+		_.each(Tampon.users, function(user){
+			var html = Mustache.render(this.templateTimeline, user);
+			var output = $(html);
+			if (!user.selected) {
+				output.hide();
+			}
+			this.$(".tab-inner").append(output);
 		}, this);
 	},
 	selectTab: function(e){
 		this.$('.tab').removeClass('selected');
 		$(e.currentTarget).addClass('selected');
 		Tampon.events.trigger('tab:selected', $(e.currentTarget).attr('data-id'));
+		var id = $(e.currentTarget).attr('data-id');
+		this.$('.timeline-tab').hide();
+		this.$('#timeline-'+id).show();
+		Tampon.events.trigger('tab:selected', id);
 	}
 });
 
