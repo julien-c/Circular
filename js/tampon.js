@@ -611,6 +611,17 @@ Tampon.Views.Posts = Backbone.View.extend({
 			}
 			this.$(".tab-inner").append(output);
 		}, this);
+		// Initialize jQuery UI sortable:
+		this.$("ul.timeline").sortable({
+			items: "li.post",
+			placeholder: "ui-state-highlight",
+			handle: ".sort-handle"
+		});
+		this.$("ul.timeline").bind("sortstop", function(){
+			// New order for our ids:
+			var order = $(this).sortable('toArray', {attribute: "data-id"});
+			Tampon.events.trigger('ui:posts:sort', order);
+		});
 	},
 	selectTab: function(e){
 		this.$('.tab').removeClass('selected');
@@ -781,19 +792,6 @@ Tampon.App = {
 			btn.button(state);
 		});
 		
-		/* jQuery UI sortable */
-		
-		$("ul.timeline").sortable({
-			items: "li.post",
-			placeholder: "ui-state-highlight",
-			handle: ".sort-handle"
-		});
-		
-		$("ul.timeline").bind("sortstop", function(){
-			// New order for our ids:
-			var order = $(this).sortable('toArray', {attribute: "data-id"});
-			Tampon.events.trigger('ui:posts:sort', order);
-		});
 		
 		/* jQuery Hotkeys */
 		
