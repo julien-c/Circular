@@ -12,6 +12,13 @@ $app['debug'] = true;
  *
  * Auth.
  *
+ * Sample output:
+ * 	array ( 'id' => '507ed38198dee47b47000001',
+ * 		'users' => array (
+ * 			'507ed38198dee47b47000000' => MongoId('507ed38198dee47b47000000'),
+ * 			'507ed31498dee4ce42000002' => MongoId('507ed31498dee4ce42000002'),
+ * 		))
+ *
  */
 
 $app->before(function (Request $request) use ($app) {
@@ -30,13 +37,6 @@ $app->before(function (Request $request) use ($app) {
 		'id'    => $_SESSION['account']['id'],
 		'users' => $users
 	);
-	
-	// Sample output:
-	// array ( 'id' => '507ed38198dee47b47000001',
-	// 		'users' => array (
-	// 			'507ed38198dee47b47000000' => MongoId('507ed38198dee47b47000000'),
-	// 			'507ed31498dee4ce42000002' => MongoId('507ed31498dee4ce42000002'),
-	// 		))
 });
 
 
@@ -153,7 +153,7 @@ $app->post('/posts', function (Request $request) use ($app) {
 
 
 
-$app->delete('/posts/{id}', function (Request $request, $id) {
+$app->delete('/posts/{id}', function (Request $request, $id) use ($app) {
 	// According to the assert, this looks like a valid MongoId
 	
 	$m = new Mongo();
@@ -167,7 +167,7 @@ $app->delete('/posts/{id}', function (Request $request, $id) {
 
 
 
-$app->put('/posts/{id}', function (Request $request, $id) {
+$app->put('/posts/{id}', function (Request $request, $id) use ($app) {
 	
 	$put = $app['data'];
 	
