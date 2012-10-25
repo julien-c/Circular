@@ -253,7 +253,7 @@
 		</script>
 		
 		<script id="tpl-tab" type="text/html">
-			<li class="tab {{selected}}" data-id="{{id}}">
+			<li id="tab-{{id}}" class="tab {{selected}}" data-id="{{id}}">
 				<span class="profile avatar twitter">
 					<img src="{{profile_image_url}}">
 					<span class="small"></span>
@@ -261,17 +261,18 @@
 				<span class="tab-meta">
 					<span class="tab-username">{{user_screen_name}}</span>
 					<span class="tab-updates">
-						<span class="tab-count">0</span> posts
+						<span class="tab-count">0</span> 
+						<span class="tab-count-name">posts</span>
 					</span>
 				</span>
 			</li>
 		</script>
 		
 		<script id="tpl-timeline" type="text/html">
-			<div id="timeline-{{id}}" class="timeline-tab">
+			<div id="timeline-{{id}}" class="timeline-wrapper">
 				<div class="empty-timeline" style="display:none;">
 					<h3>All your posts have been sent! Time to top up?</h3>
-					<button id="suggestpost" class="btn btn-success btn-large">Suggest a post</button>
+					<button class="btn btn-success btn-large suggestpost">Suggest a post</button>
 				</div>
 				<ul class="timeline">
 					<li class="heading today"><h3>Today</h3></li>

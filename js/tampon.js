@@ -274,18 +274,15 @@ Tampon.Collections.Posts = Backbone.Collection.extend({
 		});
 		Tampon.events.trigger('posts:sort', order);
 	},
-	getPostsByUser: function(){
-		// @fixme
-		// Is there an underscore helper for this?
-		var out = {}; 
-		this.each(function(post){
-			if (out[post.get('user')]) {
-				out[post.get('user')].push(post);
-			}
-			else {
-				out[post.get('user')] = [post];
-			}
+	groupByUser: function(){
+		var users = {};
+		_.each(Tampon.users, function(value, key){
+			users[key] = [];
 		});
+		var out = this.groupBy(function(post){
+			return post.get('user');
+		});
+		out = _.extend(users, out);
 		return out;
 	}
 });
@@ -471,28 +468,28 @@ Tampon.Views.Composer = Backbone.View.extend({
 
 Tampon.Views.Posts = Backbone.View.extend({
 	el: ".posts",
-	template: $("#tpl-post").html(),
-	templateTab: $("#tpl-tab").html(),
+	template:         $("#tpl-post").html(),
+	templateTab:      $("#tpl-tab").html(),
 	templateTimeline: $("#tpl-timeline").html(),
 	events: {
 		"mousedown .options .btn":  "hidetooltip",
 		"click .deletepost":        "deletepost",
 		"click .postnow":           "postnow",
-		"click #suggestpost":       "suggestpost",
+		"click .suggestpost":       "suggestpost",
 		"click .tab":               "selectTab"
 	},
 	initialize: function(){
+		Tampon.events.on('loggedin', this.renderTabs, this);
+		
 		// Initial fetch:
 		this.collection.on('reset', this.render, this);
 		
 		this.collection.on('add', this.renderPost, this);
 		this.collection.on('poststimes:refresh', this.renderPostsTimesAndHeadings, this);
 		
-		this.collection.on('reset',  this.checkEmptyView, this);
-		this.collection.on('add',    this.checkEmptyView, this);
-		this.collection.on('remove', this.checkEmptyView, this);
-		
-		Tampon.events.on('loggedin', this.renderTabs, this);
+		this.collection.on('reset',  this.checkEmptyViewAndTabCount, this);
+		this.collection.on('add',    this.checkEmptyViewAndTabCount, this);
+		this.collection.on('remove', this.checkEmptyViewAndTabCount, this);
 	},
 	render: function(posts){
 		posts.each(this.renderPost, this);
@@ -503,7 +500,7 @@ Tampon.Views.Posts = Backbone.View.extend({
 			this.formatTime(post);
 		}
 		var output = Mustache.render(this.template, post.toJSON());
-		this.$("#timeline-"+post.get('user')).find(".timeline").append(output);
+		this.timeline(post.get('user')).find(".timeline").append(output);
 	},
 	formatTime: function(post){
 		// This function is called on each post, after the initial fetch, or after each times refresh.
@@ -528,7 +525,7 @@ Tampon.Views.Posts = Backbone.View.extend({
 		// Let's first clear the Date headers (except Today which should always be here):
 		this.$(".timeline li.heading").not(".today").remove();
 		
-		_.each(this.collection.getPostsByUser(), function(posts, user){
+		_.each(this.collection.groupByUser(), function(posts, user){
 			
 			var day = 0;
 			
@@ -574,15 +571,30 @@ Tampon.Views.Posts = Backbone.View.extend({
 	suggestpost: function(){
 		Tampon.events.trigger('posts:suggestpost');
 	},
+	checkEmptyViewAndTabCount: function(){
+		this.checkEmptyView();
+		this.tabCount();
+	},
 	checkEmptyView: function(){
-		if (this.collection.length) {
-			this.$(".empty-timeline").hide();
-			this.$(".timeline").show();
-		}
-		else {
-			this.$(".empty-timeline").show();
-			this.$(".timeline").hide();
-		}
+		_.each(this.collection.groupByUser(), function(posts, user){
+			if (posts.length) {
+				this.timeline(user).find(".empty-timeline").hide();
+				this.timeline(user).find(".timeline").show();
+			}
+			else {
+				this.timeline(user).find(".empty-timeline").show();
+				this.timeline(user).find(".timeline").hide();
+			}
+		}, this);
+	},
+	tabCount: function(){
+		_.each(this.collection.groupByUser(), function(posts, user){
+			this.tab(user).find(".tab-count").text(posts.length);
+			this.tab(user).find(".tab-count-name").text(
+				(posts.length == 1) ? "post" : "posts"
+			);
+		},
+		this);
 	},
 	renderTabs: function(){
 		// Tabs:
@@ -604,9 +616,15 @@ Tampon.Views.Posts = Backbone.View.extend({
 		this.$('.tab').removeClass('selected');
 		$(e.currentTarget).addClass('selected');
 		var id = $(e.currentTarget).attr('data-id');
-		this.$('.timeline-tab').hide();
-		this.$('#timeline-'+id).show();
+		this.$('.timeline-wrapper').hide();
+		this.timeline(id).show();
 		Tampon.events.trigger('tab:selected', id);
+	},
+	timeline: function(user){
+		return this.$("#timeline-"+user);
+	},
+	tab: function(user){
+		return this.$("#tab-"+user);
 	}
 });
 
