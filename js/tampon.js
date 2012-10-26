@@ -652,7 +652,14 @@ Tampon.Models.PostsTimes = Backbone.Model.extend({
 		this.posts.on('remove', this.computePostsTimes, this);
 	},
 	computePostsTimes: function(){
+		_.each(this.posts.groupByUser(), function(posts, user){
+			this.computePostsTimesForUser(posts, user);
+		}, this);
 		
+		this.posts.trigger('poststimes:refresh');
+		this.save();
+	},
+	computePostsTimesForUser: function(posts, user){
 		var date = new Date();
 		var secondsUpToNowToday = Tampon.Utils.Time.secondsFrom24HourTime({
 			hour: date.getHours(),
@@ -667,7 +674,7 @@ Tampon.Models.PostsTimes = Backbone.Model.extend({
 		
 		var day = 0;
 		
-		this.posts.each(function(post){
+		_.each(posts, function(post){
 			if ((i % times.length == 0) && (i > 0)){
 				day++;
 			}
@@ -684,9 +691,6 @@ Tampon.Models.PostsTimes = Backbone.Model.extend({
 			
 			i++;
 		});
-		
-		this.posts.trigger('poststimes:refresh');
-		this.save();
 	},
 	save: function(){
 		// Only keep id and time from the Posts collection:
