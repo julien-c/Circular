@@ -10,9 +10,18 @@ window.Tampon = {
 
 Tampon.Utils = {
 	getParameterByName: function(name) {
+		// @see http://stackoverflow.com/a/901144/593036
 		name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]"); var regexS = "[\\?&]" + name + "=([^&#]*)"; var regex = new RegExp(regexS); var results = regex.exec(window.location.search); if(results == null) return ""; else return decodeURIComponent(results[1].replace(/\+/g, " "));
+	},
+	postJSON: function(url, data){
+		return $.ajax({
+			url: url,
+			type: 'POST',
+			data: JSON.stringify(data), 
+			contentType: 'application/json',
+			dataType: 'json'
+		});
 	}
-	// @see http://stackoverflow.com/a/901144/593036
 };
 
 
@@ -106,19 +115,18 @@ Tampon.Views.Alert = Backbone.View.extend({
 
 
 Tampon.Models.Settings = Backbone.Model.extend({
+	urlRoot: "api/settings",
 	initialize: function(){
 		this.fetch();
 		
 		// Defaults:
 		if (!this.has('timezone')) {
 			// Notice: The timezone is not actually used right now.
-			this.set('timezone', this.defaultTimezone());
+			this.set('timezone', this.defaultTimezone()).saveLocalSettings();
 		}
 		if (!this.has('times')) {
-			this.set('times', this.defaultTimes());
+			this.set('times', this.defaultTimes()).saveLocalSettings();
 		}
-		
-		this.save();
 	},
 	defaultTimezone: function(){
 		// Automatic Timezone Detection
@@ -141,10 +149,26 @@ Tampon.Models.Settings = Backbone.Model.extend({
 		if (localStorage['times']) {
 			this.set('times', JSON.parse(localStorage['times']));
 		}
+		$.ajax({
+			url: this.urlRoot, 
+			type: 'GET',
+			context: this,
+			success: function(data){
+				this.set('email', data.email);
+				Tampon.events.trigger('settings:fetched');
+			}
+		});
 	},
 	save: function(){
+		this.saveLocalSettings();
+		this.saveServerSettings();
+	},
+	saveLocalSettings: function(){
 		localStorage['timezone'] = this.get('timezone');
 		localStorage['times']    = JSON.stringify(this.get('times'));
+	},
+	saveServerSettings: function(){
+		Tampon.Utils.postJSON(this.urlRoot, {email: this.get('email')});
 	}
 });
 
@@ -158,7 +182,7 @@ Tampon.Views.Settings = Backbone.View.extend({
 		"click #savesettings":               "saveSettings"
 	},
 	initialize: function(){
-		this.render();
+		Tampon.events.on('settings:fetched', this.render, this);
 	},
 	addtime: function(e){
 		e.preventDefault();
@@ -175,6 +199,7 @@ Tampon.Views.Settings = Backbone.View.extend({
 		// Set frontend to current values from model:
 		this.renderTimezone();
 		this.renderTimes();
+		this.renderEmail();
 	},
 	renderTimezone: function(){
 		this.$("select.timezone").val(this.model.get('timezone'));
@@ -192,6 +217,9 @@ Tampon.Views.Settings = Backbone.View.extend({
 			this.$(".times").append(out);
 		}, this);
 	},
+	renderEmail: function(){
+		this.$('input.email').val(this.model.get('email'));
+	},
 	saveSettings: function(e){
 		var btn = $(e.target);
 		Tampon.events.trigger('button:setstate', btn, 'loading');
@@ -199,7 +227,7 @@ Tampon.Views.Settings = Backbone.View.extend({
 			Tampon.events.trigger('button:setstate', btn, 'reset');
 		}, 500);
 		
-		this.model.set('timezone', $("select.timezone").val());
+		this.model.set('timezone', this.$("select.timezone").val());
 		
 		var times = [];
 		this.$("p.settings-time").each(function(){
@@ -213,12 +241,12 @@ Tampon.Views.Settings = Backbone.View.extend({
 		times = _.sortBy(times, Tampon.Utils.Time.secondsFrom12HourTime);
 		this.model.set('times', times);
 		
+		this.model.set('email', this.$('input.email').val());
+		
 		// Actual saving:
 		this.model.save();
-		
-		// Refresh displayed times:
+		// Refresh displayed times in Settings:
 		this.renderTimes();
-		
 		// Trigger event so that posting times in the Timeline view can be refreshed:
 		Tampon.events.trigger('settings:saved');
 	}
@@ -305,8 +333,8 @@ Tampon.Views.Composer = Backbone.View.extend({
 		// and update countdown accordingly:
 		this.$("#textarea").val(Tampon.Utils.getParameterByName('p'));
 		this.countdown();
+		this.renderAvatars();
 		
-		Tampon.events.on('loggedin', this.renderAvatars, this);
 		Tampon.events.on('posts:suggestpost', this.suggestpost, this);
 		Tampon.events.on('tab:selected', this.selectProfile, this);
 		
@@ -479,7 +507,7 @@ Tampon.Views.Posts = Backbone.View.extend({
 		"click .tab":               "selectTab"
 	},
 	initialize: function(){
-		Tampon.events.on('loggedin', this.renderTabs, this);
+		this.renderTabs();
 		
 		// Initial fetch:
 		this.collection.on('reset', this.render, this);
@@ -813,34 +841,25 @@ Tampon.App = {
 
 $(document).ready(function(){
 	
-	/* Initialize App */
-	
+	// Initialize App
 	Tampon.App.initialize();
 	
 	
-	
-	/* Initialize Settings */
-	
-	var settings = new Tampon.Models.Settings();
-	
-	new Tampon.Views.Settings({model: settings});
-	
-	
-	/* Initialize Composer and Posts */
-	
-	var posts = new Tampon.Collections.Posts();
 	Tampon.events.on('loggedin', function(){
+		
+		// Initialize Settings
+		var settings = new Tampon.Models.Settings();
+		new Tampon.Views.Settings({model: settings});
+		
+		// Initialize Composer and Posts
+		var posts = new Tampon.Collections.Posts();
 		posts.fetch();
+		new Tampon.Views.Composer({collection: posts});
+		new Tampon.Views.Posts({collection: posts});
+		
+		// Initialize PostsTimes
+		var poststimes = new Tampon.Models.PostsTimes({posts: posts, settings: settings});
 	});
-	
-	new Tampon.Views.Composer({collection: posts});
-	
-	new Tampon.Views.Posts({collection: posts});
-	
-	
-	/* Initialize PostsTimes */
-	
-	var poststimes = new Tampon.Models.PostsTimes({posts: posts, settings: settings});
 	
 });
 

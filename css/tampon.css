@@ -422,3 +422,7 @@ p.add-new-time {
 	margin-top: 9px;
 }
 
+input.email {
+	width: 320px;
+}
+

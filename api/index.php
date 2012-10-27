@@ -252,6 +252,38 @@ $app->post('/upload', function (Request $request) use ($app) {
 
 
 
+/***
+ *
+ * The `/settings` endpoint lets users interact with server-stored account-wide settings (for now, email).
+ *
+ */
+
+$app->get('/settings', function (Request $request) use ($app) {
+	$m = new Mongo();
+	$account = $m->tampon->accounts->findOne(array('_id' => new MongoId($app['account']['id'])));
+	unset($account['users']);
+	return $app->json($account);
+});
+
+$app->post('/settings', function (Request $request) use ($app) {
+	$email = $app['data']['email'];
+	
+	$m = new Mongo();
+	if ($email) {
+		$m->tampon->accounts->update(
+			array('_id'  => new MongoId($app['account']['id'])),
+			array('$set' => array('email' => $email))
+		);
+	}
+	else {
+		$m->tampon->accounts->update(
+			array('_id'  => new MongoId($app['account']['id'])),
+			array('$unset' => array('email' => true))
+		);
+	}
+});
+
+
 
 /* Run, App, Run! */
 
