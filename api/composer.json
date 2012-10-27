@@ -1,6 +1,7 @@
 {
     "require": {
-        "silex/silex": "1.0.*"
+        "silex/silex": "1.0.*",
+        "julien-c/simple-resize": "*"
     },
     "minimum-stability": "dev"
 }

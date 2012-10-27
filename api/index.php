@@ -4,16 +4,18 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 require_once __DIR__.'/vendor/autoload.php';
+require_once __DIR__.'/config.php';
 
 $app = new Silex\Application();
-$app['debug'] = true;
+
 
 /***
  *
  * Auth.
  *
  * Sample output:
- * 	array ( 'id' => '507ed38198dee47b47000001',
+ * 	array (
+ * 		'id' => '507ed38198dee47b47000001',
  * 		'users' => array (
  * 			'507ed38198dee47b47000000' => MongoId('507ed38198dee47b47000000'),
  * 			'507ed31498dee4ce42000002' => MongoId('507ed31498dee4ce42000002'),
@@ -219,6 +221,35 @@ $app->post('/times', function (Request $request) use ($app) {
 	
 	return $app->json(array("success" => true));
 });
+
+
+
+/***
+ *
+ * The `/upload` endpoint enables image uploading and creates a square 100x100px thumbnail.
+ *
+ */
+
+$app->post('/upload', function (Request $request) use ($app) {
+	$file = $request->files->get('userfile');
+	if ($file->isValid()) {
+		$extension = $file->guessExtension();
+		$md5 = md5_file($file->getRealPath());
+		
+		$filename      = 'uploads/' . $app['account']['id'] . '/' . $md5 . '.' . $extension;
+		$thumbnailname = 'uploads/' . $app['account']['id'] . '/' . $md5 . '.100x100' . '.' . $extension;
+		
+		$file = $file->move(__DIR__.'/../uploads/'.$app['account']['id'], $md5.'.'.$extension);
+		
+		// Create thumbnail:
+		$simpleResize = new SimpleResize($file->getRealPath());
+		$simpleResize->resizeImage(100, 100, 'crop');
+		$simpleResize->saveImage(__DIR__.'/../'.$thumbnailname, 100);
+		
+		return $app->json(array('url' => APP_URL.$filename, 'thumbnail' => APP_URL.$thumbnailname));
+	}
+});
+
 
 
 

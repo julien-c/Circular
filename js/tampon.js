@@ -311,7 +311,7 @@ Tampon.Views.Composer = Backbone.View.extend({
 		Tampon.events.on('tab:selected', this.selectProfile, this);
 		
 		$(".dropzone").filedrop({
-			url: "api/upload.php",
+			url: "api/upload",
 			allowedfiletypes: ['image/jpeg','image/png','image/gif'],
 			dragOver: function(){ 
 				$(this).addClass("over");

@@ -1,6 +1,39 @@
 {
-    "hash": "e14fcad137bf4860f190751fd1b1bbb2",
+    "hash": "55297f147d26ba9e1b815f1a3f784c99",
     "packages": [
+        {
+            "name": "julien-c/simple-resize",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/julien-c/SimpleResize",
+                "reference": "9823a4dc618a9d3471525c5dafd5f365d70675d4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://github.com/julien-c/SimpleResize/zipball/9823a4dc618a9d3471525c5dafd5f365d70675d4",
+                "reference": "9823a4dc618a9d3471525c5dafd5f365d70675d4",
+                "shasum": ""
+            },
+            "require": {
+                "ext-gd": "*"
+            },
+            "time": "1351334229",
+            "type": "library",
+            "installation-source": "source",
+            "autoload": {
+                "psr-0": {
+                    "SimpleResize": ""
+                }
+            },
+            "authors": [
+                {
+                    "name": "Julien Chaumond",
+                    "email": "chaumond@gmail.com"
+                }
+            ],
+            "description": "Simple Composer port of Jarrod Oberto's Image Resizing class"
+        },
         {
             "name": "pimple/pimple",
             "version": "dev-master",
@@ -127,40 +160,40 @@
         },
         {
             "name": "symfony/event-dispatcher",
-            "version": "2.1.x-dev",
+            "version": "dev-master",
             "target-dir": "Symfony/Component/EventDispatcher",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/EventDispatcher",
-                "reference": "fb273317c0505ba657aa3d727530d36ae671fb82"
+                "reference": "24a1039d52b6b9f533cb73dcb96c7748262db686"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://github.com/symfony/EventDispatcher/zipball/fb273317c0505ba657aa3d727530d36ae671fb82",
-                "reference": "fb273317c0505ba657aa3d727530d36ae671fb82",
+                "url": "https://github.com/symfony/EventDispatcher/zipball/24a1039d52b6b9f533cb73dcb96c7748262db686",
+                "reference": "24a1039d52b6b9f533cb73dcb96c7748262db686",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.3"
             },
             "require-dev": {
-                "symfony/dependency-injection": "2.1.*"
+                "symfony/dependency-injection": "2.2.*"
             },
             "suggest": {
-                "symfony/dependency-injection": "2.1.*",
-                "symfony/http-kernel": "2.1.*"
+                "symfony/dependency-injection": "2.2.*",
+                "symfony/http-kernel": "2.2.*"
             },
-            "time": "1349363877",
+            "time": "1349553479",
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.1-dev"
+                    "dev-master": "2.2-dev"
                 }
             },
             "installation-source": "source",
             "autoload": {
                 "psr-0": {
-                    "Symfony\\Component\\EventDispatcher": ""
+                    "Symfony\\Component\\EventDispatcher\\": ""
                 }
             },
             "license": [
@@ -181,35 +214,37 @@
         },
         {
             "name": "symfony/http-foundation",
-            "version": "2.1.x-dev",
+            "version": "dev-master",
             "target-dir": "Symfony/Component/HttpFoundation",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/HttpFoundation",
-                "reference": "6568a8032b00fcc79acd45a7a1321ccd4789e9af"
+                "reference": "ecddcf3340c6b5c06be0bca656033ddc389e3fd4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://github.com/symfony/HttpFoundation/zipball/6568a8032b00fcc79acd45a7a1321ccd4789e9af",
-                "reference": "6568a8032b00fcc79acd45a7a1321ccd4789e9af",
+                "url": "https://github.com/symfony/HttpFoundation/zipball/ecddcf3340c6b5c06be0bca656033ddc389e3fd4",
+                "reference": "ecddcf3340c6b5c06be0bca656033ddc389e3fd4",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.3"
             },
-            "time": "1350717030",
+            "time": "1351093287",
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.1-dev"
+                    "dev-master": "2.2-dev"
                 }
             },
             "installation-source": "source",
             "autoload": {
                 "psr-0": {
-                    "Symfony\\Component\\HttpFoundation": "",
-                    "SessionHandlerInterface": "Symfony/Component/HttpFoundation/Resources/stubs"
-                }
+                    "Symfony\\Component\\HttpFoundation\\": ""
+                },
+                "classmap": [
+                    "Symfony/Component/HttpFoundation/Resources/stubs"
+                ]
             },
             "license": [
                 "MIT"
@@ -229,53 +264,53 @@
         },
         {
             "name": "symfony/http-kernel",
-            "version": "2.1.x-dev",
+            "version": "dev-master",
             "target-dir": "Symfony/Component/HttpKernel",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/HttpKernel",
-                "reference": "1abdcbffef70c025040b3f97501309a208cf3d15"
+                "reference": "0311934a5fee0f8a2e277f83ec8523ec7a3e0aaf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://github.com/symfony/HttpKernel/zipball/1abdcbffef70c025040b3f97501309a208cf3d15",
-                "reference": "1abdcbffef70c025040b3f97501309a208cf3d15",
+                "url": "https://github.com/symfony/HttpKernel/zipball/0311934a5fee0f8a2e277f83ec8523ec7a3e0aaf",
+                "reference": "0311934a5fee0f8a2e277f83ec8523ec7a3e0aaf",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.3",
-                "symfony/event-dispatcher": "2.1.*",
-                "symfony/http-foundation": "2.1.*"
+                "symfony/event-dispatcher": "2.2.*",
+                "symfony/http-foundation": "2.2.*"
             },
             "require-dev": {
-                "symfony/browser-kit": "2.1.*",
-                "symfony/class-loader": "2.1.*",
-                "symfony/config": "2.1.*",
-                "symfony/console": "2.1.*",
-                "symfony/dependency-injection": "2.1.*",
-                "symfony/finder": "2.1.*",
-                "symfony/process": "2.1.*",
-                "symfony/routing": "2.1.*"
+                "symfony/browser-kit": "2.2.*",
+                "symfony/class-loader": "2.2.*",
+                "symfony/config": "2.2.*",
+                "symfony/console": "2.2.*",
+                "symfony/dependency-injection": "2.2.*",
+                "symfony/finder": "2.2.*",
+                "symfony/process": "2.2.*",
+                "symfony/routing": "2.2.*"
             },
             "suggest": {
-                "symfony/browser-kit": "2.1.*",
-                "symfony/class-loader": "2.1.*",
-                "symfony/config": "2.1.*",
-                "symfony/console": "2.1.*",
-                "symfony/dependency-injection": "2.1.*",
-                "symfony/finder": "2.1.*"
+                "symfony/browser-kit": "2.2.*",
+                "symfony/class-loader": "2.2.*",
+                "symfony/config": "2.2.*",
+                "symfony/console": "2.2.*",
+                "symfony/dependency-injection": "2.2.*",
+                "symfony/finder": "2.2.*"
             },
-            "time": "1350916632",
+            "time": "1351093287",
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.1-dev"
+                    "dev-master": "2.2-dev"
                 }
             },
             "installation-source": "source",
             "autoload": {
                 "psr-0": {
-                    "Symfony\\Component\\HttpKernel": ""
+                    "Symfony\\Component\\HttpKernel\\": ""
                 }
             },
             "license": [
@@ -296,44 +331,44 @@
         },
         {
             "name": "symfony/routing",
-            "version": "2.1.x-dev",
+            "version": "dev-master",
             "target-dir": "Symfony/Component/Routing",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Routing",
-                "reference": "b91de18aa18864d51904ba1ce6e247c42867a1f5"
+                "reference": "eef19e88d7e4a9c30a6983faa17d294c383616dd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://github.com/symfony/Routing/zipball/b91de18aa18864d51904ba1ce6e247c42867a1f5",
-                "reference": "b91de18aa18864d51904ba1ce6e247c42867a1f5",
+                "url": "https://github.com/symfony/Routing/zipball/eef19e88d7e4a9c30a6983faa17d294c383616dd",
+                "reference": "eef19e88d7e4a9c30a6983faa17d294c383616dd",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.3"
             },
             "require-dev": {
-                "symfony/config": "2.1.*",
-                "symfony/yaml": "2.1.*",
-                "symfony/http-kernel": "2.1.*",
-                "doctrine/common": ">=2.2,<2.4-dev"
+                "doctrine/common": ">=2.2,<2.4-dev",
+                "symfony/config": "2.2.*",
+                "symfony/yaml": "2.2.*",
+                "symfony/http-kernel": "2.2.*"
             },
             "suggest": {
                 "doctrine/common": ">=2.2,<2.4-dev",
-                "symfony/config": "2.1.*",
-                "symfony/yaml": "2.1.*"
+                "symfony/config": "2.2.*",
+                "symfony/yaml": "2.2.*"
             },
-            "time": "1351243602",
+            "time": "1351093287",
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.1-dev"
+                    "dev-master": "2.2-dev"
                 }
             },
             "installation-source": "source",
             "autoload": {
                 "psr-0": {
-                    "Symfony\\Component\\Routing": ""
+                    "Symfony\\Component\\Routing\\": ""
                 }
             },
             "license": [
