@@ -40,7 +40,8 @@ function request_token($tmhOAuth) {
 		'POST',
 		$tmhOAuth->url('oauth/request_token', ''),
 		array(
-			'oauth_callback' => tmhUtilities::php_self()
+			'oauth_callback' => tmhUtilities::php_self(),
+			'dummy' => 'dummy'
 		)
 	);
 	
@@ -85,7 +86,8 @@ function access_token($tmhOAuth) {
 		'POST',
 		$tmhOAuth->url('oauth/access_token', ''),
 		array(
-			'oauth_verifier' => $_REQUEST['oauth_verifier']
+			'oauth_verifier' => $_REQUEST['oauth_verifier'],
+			'dummy' => 'dummy'
 		)
 	);
 	
