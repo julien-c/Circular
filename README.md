@@ -1,12 +1,12 @@
-# Tampon
+# Circular
 
 #### An open source Buffer app built on Backbone, Bootstrap and MongoDB
 
-http://tamponapp.com
+http://circular.io
 
 ---
 
-Tampon is built as a Backbone.js application that communicates with a MongoDB datastore through a REST API written in PHP. 
+Circular is built as a Backbone.js application that communicates with a MongoDB datastore through a REST API written in PHP. 
 
 The server part, based on the [Silex](http://silex.sensiolabs.org) PHP micro-framework, is intended to be the *dumbest possible*, i.e. we tried to put most "intelligence" in the Backbone app, not in the API. (For example, the API only takes UNIX timestamps and posts' content, while the Backbone app computes the scheduled timestamps).
 

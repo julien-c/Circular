@@ -7,4 +7,4 @@ define('CONSUMER_SECRET', '');
 
 /* The URL you're serving the App from, including trailing slash */
 
-define('APP_URL', 'http://tamponapp.com/');
+define('APP_URL', 'http://circular.io/');
