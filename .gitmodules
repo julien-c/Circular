@@ -4,6 +4,3 @@
 [submodule "extlib/PHP-Daemon"]
 	path = extlib/PHP-Daemon
 	url = git://github.com/shaneharter/PHP-Daemon.git
-[submodule "bootstrap/src"]
-	path = bootstrap/src
-	url = https://github.com/twitter/bootstrap.git
