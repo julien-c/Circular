@@ -53,14 +53,6 @@ div.section {
 	padding: 20px;
 }
 
-.tampon-icon {
-	background: url('../images/tampon.png');
-	width: 16px;
-	height: 16px;
-	margin-top: -3px;
-	display: inline-block;
-}
-
 .colophon {
 	font-weight: 300;
 	color: #828CA7;
