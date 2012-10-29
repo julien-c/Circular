@@ -2734,18 +2734,18 @@ button.close {
 }
 
 .btn-primary {
-  background-color: #31589e;
-  *background-color: #2b4e8b;
-  background-image: -moz-linear-gradient(top, #355faa, #2b4e8b);
-  background-image: -ms-linear-gradient(top, #355faa, #2b4e8b);
-  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#355faa), to(#2b4e8b));
-  background-image: -webkit-linear-gradient(top, #355faa, #2b4e8b);
-  background-image: -o-linear-gradient(top, #355faa, #2b4e8b);
-  background-image: linear-gradient(top, #355faa, #2b4e8b);
+  background-color: #3d6bbd;
+  *background-color: #3460ae;
+  background-image: -moz-linear-gradient(top, #4373c7, #3460ae);
+  background-image: -ms-linear-gradient(top, #4373c7, #3460ae);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#4373c7), to(#3460ae));
+  background-image: -webkit-linear-gradient(top, #4373c7, #3460ae);
+  background-image: -o-linear-gradient(top, #4373c7, #3460ae);
+  background-image: linear-gradient(top, #4373c7, #3460ae);
   background-repeat: repeat-x;
-  border-color: #2b4e8b #2b4e8b #192d51;
+  border-color: #3460ae #3460ae #223f73;
   border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#355faa', endColorstr='#2b4e8b', GradientType=0);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#4373c7', endColorstr='#3460ae', GradientType=0);
   filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
 }
 
@@ -2754,13 +2754,13 @@ button.close {
 .btn-primary.active,
 .btn-primary.disabled,
 .btn-primary[disabled] {
-  background-color: #2b4e8b;
-  *background-color: #254377;
+  background-color: #3460ae;
+  *background-color: #2e559a;
 }
 
 .btn-primary:active,
 .btn-primary.active {
-  background-color: #1f3864 \9;
+  background-color: #284a86 \9;
 }
 
 .btn-warning {
@@ -3078,7 +3078,7 @@ input[type="submit"].btn.btn-mini {
 }
 
 .btn-group.open .btn-primary.dropdown-toggle {
-  background-color: #2b4e8b;
+  background-color: #3460ae;
 }
 
 .btn-group.open .btn-warning.dropdown-toggle {
