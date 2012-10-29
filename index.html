@@ -4,7 +4,7 @@
 		<meta charset="utf-8">
 		<meta name="generator" content="Tampon">
 		
-		<link href="images/tampon.png" rel="shortcut icon">
+		<link href="images/circular.png" rel="shortcut icon">
 		
 		<link href="bootstrap/css/bootstrap.css" rel="stylesheet">
 		<link href="css/tampon.css" rel="stylesheet">
@@ -16,11 +16,10 @@
 	<body>
 		
 		<div class="navbar navbar-fixed-top">
-			<div class="navbar-top"></div>
 			<div class="navbar-inner">
 				<div class="container">
 					<a class="brand" href="">
-						Tampon
+						Circular
 					</a>
 					
 					<ul class="nav pull-right logged-in" style="display:none;">
@@ -46,17 +45,27 @@
 			<div class="not-logged-in">
 				
 				<div class="hero-unit">
-					<h1>Tampon, an open source Buffer app.</h1>
+					<h1>Circular, an open source Buffer app.</h1>
 					<p>Stock up some great tweets and have them automatically shared throughout the day.</p>
 					<p>
 						<a class="btn btn-primary btn-large signin">
 							<span class="twitter-bird">Sign in with Twitter</span>
 						</a>
 					</p>
+					<div id="spinner">
+					</div>
 				</div>
 				
-				<div id="spinner">
-				</div>
+				<ul class="thumbnails">
+					<li class="span4">
+						<div class="counter">∞</div>
+						<div>Posts in the queue right now.</div>
+					</li>
+					<li class="span4">
+						<div class="circular-large-logo"></div>
+					</li>
+					<li class="span4"></li>
+				</ul>
 				
 				<ul class="thumbnails">
 					<li class="span4">

@@ -15,7 +15,6 @@ input, button, select, textarea {
 }
 
 .hero-unit {
-	margin-bottom: 0px;
 	box-shadow: 0 1px 5px rgba(0,0,0,0.1);
 	background-color: #FCFCFC;
 }
@@ -32,14 +31,17 @@ hr {
 
 .navbar .brand {
 	color: #FFF;
-	background: url('../images/tampon-logo.png') no-repeat 0px 7px;
-	padding-left: 32px;
-	margin-left: 0px;
+	background: url('../images/circular-logo.png') no-repeat;
 	font-weight: normal;
+	text-indent: -9000px;
+	width: 132px;
+	height: 24px;
+	margin-left: 10px;
+	margin-top: 10px;
 }
 
 body {
-	/*background: url('../images/subtle-pattern-1.jpg');*/
+	background: url('../images/background.jpg');
 	background-color: #E3EAF4;
 }
 
@@ -70,9 +72,10 @@ div.github {
 	right: 0;
 }
 
-.navbar-top {
-	height: 5px;
-	background-color: #7FAFEE;
+.navbar-inner {
+	background: url('../images/circular-header.png') repeat-x;
+	height: 47px;
+	box-shadow: none;
 }
 
 .twitter-bird {
@@ -80,12 +83,22 @@ div.github {
 	padding-left: 30px;
 }
 
+.circular-large-logo {
+	background: url('../images/circular-large.png');
+	width: 202px;
+	height: 204px;
+	margin: auto;
+}
+
+.counter {
+	margin-top: 68px;
+	font-size: 46px;
+	line-height: 46px;
+	font-weight: bold;
+}
+
 
 /* Not logged in */
-
-#spinner {
-	height: 62px;
-}
 
 .caption {
 	padding: 9px;
