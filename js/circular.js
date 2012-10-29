@@ -774,6 +774,11 @@ Tampon.App = {
 				// Trigger "logged in" event:
 				Tampon.events.trigger('loggedin');
 			}
+			else {
+				// Else we'll just update the posts counter:
+				Tampon.App.updateCounter();
+				setInterval(Tampon.App.updateCounter, 10000);
+			}
 		});
 		
 		$(".signin").click(function(){
@@ -829,6 +834,11 @@ Tampon.App = {
 		
 		$("#textarea").bind('keydown', 'meta+return', function(){
 			$("#addtoposts").click();
+		});
+	},
+	updateCounter: function(){
+		$.getJSON("api/counter", function(data){
+			$('.counter').text(data.count);
 		});
 	}
 }

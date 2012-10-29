@@ -8,6 +8,14 @@ require_once __DIR__.'/config.php';
 
 $app = new Silex\Application();
 
+/***
+ *
+ * Let's group controllers on whether they're `public` or `protected`
+ *
+ */
+
+$public    = $app['controllers_factory'];
+$protected = $app['controllers_factory'];
 
 /***
  *
@@ -23,8 +31,8 @@ $app = new Silex\Application();
  *
  */
 
-$app->before(function (Request $request) use ($app) {
-	// All endpoints require authentication:
+$protected->before(function (Request $request) use ($app) {
+	// `Protected` endpoints require authentication:
 	session_start();
 	if (!isset($_SESSION['account'])) {
 		return new Response('Unauthorized', 401);
@@ -64,7 +72,7 @@ $app->before(function (Request $request) use ($app) {
  *
  */
 
-$app->get('/posts', function () use ($app) {
+$protected->get('/posts', function () use ($app) {
 	// Retrieve all posts by users managed by current account, sorted by time ascending:
 	
 	$m = new Mongo();
@@ -104,7 +112,7 @@ $app->get('/posts', function () use ($app) {
 
 
 
-$app->post('/posts', function (Request $request) use ($app) {
+$protected->post('/posts', function (Request $request) use ($app) {
 	
 	$post = $app['data'];
 	
@@ -155,7 +163,7 @@ $app->post('/posts', function (Request $request) use ($app) {
 
 
 
-$app->delete('/posts/{id}', function (Request $request, $id) use ($app) {
+$protected->delete('/posts/{id}', function (Request $request, $id) use ($app) {
 	// According to the assert, this looks like a valid MongoId
 	
 	$m = new Mongo();
@@ -169,7 +177,7 @@ $app->delete('/posts/{id}', function (Request $request, $id) use ($app) {
 
 
 
-$app->put('/posts/{id}', function (Request $request, $id) use ($app) {
+$protected->put('/posts/{id}', function (Request $request, $id) use ($app) {
 	
 	$put = $app['data'];
 	
@@ -201,7 +209,7 @@ $app->put('/posts/{id}', function (Request $request, $id) use ($app) {
  *
  */
 
-$app->post('/times', function (Request $request) use ($app) {
+$protected->post('/times', function (Request $request) use ($app) {
 	
 	$posts = $app['data']['posts'];
 	
@@ -230,7 +238,7 @@ $app->post('/times', function (Request $request) use ($app) {
  *
  */
 
-$app->post('/upload', function (Request $request) use ($app) {
+$protected->post('/upload', function (Request $request) use ($app) {
 	$file = $request->files->get('userfile');
 	if ($file->isValid()) {
 		$extension = $file->guessExtension();
@@ -258,14 +266,14 @@ $app->post('/upload', function (Request $request) use ($app) {
  *
  */
 
-$app->get('/settings', function (Request $request) use ($app) {
+$protected->get('/settings', function (Request $request) use ($app) {
 	$m = new Mongo();
 	$account = $m->tampon->accounts->findOne(array('_id' => new MongoId($app['account']['id'])));
 	unset($account['users']);
 	return $app->json($account);
 });
 
-$app->post('/settings', function (Request $request) use ($app) {
+$protected->post('/settings', function (Request $request) use ($app) {
 	$email = $app['data']['email'];
 	
 	$m = new Mongo();
@@ -285,7 +293,26 @@ $app->post('/settings', function (Request $request) use ($app) {
 
 
 
-/* Run, App, Run! */
+/***
+ *
+ * The `/counter` public endpoint returns the number of scheduled posts queued right now.
+ *
+ */
 
+$public->get('/counter', function (Request $request) use ($app) {
+	$m = new Mongo();
+	$count = $m->tampon->posts->count();
+	return $app->json(array('count' => $count));
+});
+
+
+/***
+ *
+ * Run, App, Run!
+ *
+ */
+
+$app->mount('/', $public);
+$app->mount('/', $protected);
 $app->run();
 
