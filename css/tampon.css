@@ -78,6 +78,11 @@ div.github {
 	box-shadow: none;
 }
 
+.navbar .nav > li > a {
+	color: #DFE1F4;
+	padding-top: 14px;
+}
+
 .twitter-bird {
 	background: url('../images/twitter-bird.png') no-repeat;
 	padding-left: 30px;
@@ -96,9 +101,6 @@ div.github {
 	line-height: 46px;
 	font-weight: bold;
 }
-
-
-/* Not logged in */
 
 .caption {
 	padding: 9px;
