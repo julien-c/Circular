@@ -775,9 +775,8 @@ Circular.App = {
 				Circular.events.trigger('loggedin');
 			}
 			else {
-				// Else we'll just update the posts counter:
+				// Else, we'll just update the posts counter:
 				Circular.App.updateCounter();
-				setInterval(Circular.App.updateCounter, 10000);
 			}
 		});
 		
