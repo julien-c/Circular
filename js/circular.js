@@ -1,4 +1,4 @@
-window.Tampon = {
+window.Circular = {
 	Models:      {},
 	Collections: {},
 	Views:       {},
@@ -8,7 +8,7 @@ window.Tampon = {
 };
 
 
-Tampon.Utils = {
+Circular.Utils = {
 	getParameterByName: function(name) {
 		// @see http://stackoverflow.com/a/901144/593036
 		name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]"); var regexS = "[\\?&]" + name + "=([^&#]*)"; var regex = new RegExp(regexS); var results = regex.exec(window.location.search); if(results == null) return ""; else return decodeURIComponent(results[1].replace(/\+/g, " "));
@@ -25,7 +25,7 @@ Tampon.Utils = {
 };
 
 
-Tampon.Utils.Time = {
+Circular.Utils.Time = {
 	generateUnixTimestamp: function(then){
 		return Math.floor(then.getTime() / 1000);
 	},
@@ -95,7 +95,7 @@ Tampon.Utils.Time = {
 };
 
 
-Tampon.Views.Alert = Backbone.View.extend({
+Circular.Views.Alert = Backbone.View.extend({
 	el: "#alerts",
 	template: $("#tpl-alert").html(),
 	initialize: function(options){
@@ -114,7 +114,7 @@ Tampon.Views.Alert = Backbone.View.extend({
 });
 
 
-Tampon.Models.Settings = Backbone.Model.extend({
+Circular.Models.Settings = Backbone.Model.extend({
 	urlRoot: "api/settings",
 	initialize: function(){
 		this.fetch();
@@ -155,7 +155,7 @@ Tampon.Models.Settings = Backbone.Model.extend({
 			context: this,
 			success: function(data){
 				this.set('email', data.email);
-				Tampon.events.trigger('settings:fetched');
+				Circular.events.trigger('settings:fetched');
 			}
 		});
 	},
@@ -168,12 +168,12 @@ Tampon.Models.Settings = Backbone.Model.extend({
 		localStorage['times']    = JSON.stringify(this.get('times'));
 	},
 	saveServerSettings: function(){
-		Tampon.Utils.postJSON(this.urlRoot, {email: this.get('email')});
+		Circular.Utils.postJSON(this.urlRoot, {email: this.get('email')});
 	}
 });
 
 
-Tampon.Views.Settings = Backbone.View.extend({
+Circular.Views.Settings = Backbone.View.extend({
 	el: $(".settings"),
 	templateSettingsTime: $("#tpl-time").html(),
 	events: {
@@ -182,7 +182,7 @@ Tampon.Views.Settings = Backbone.View.extend({
 		"click #savesettings":               "saveSettings"
 	},
 	initialize: function(){
-		Tampon.events.on('settings:fetched', this.render, this);
+		Circular.events.on('settings:fetched', this.render, this);
 	},
 	addtime: function(e){
 		e.preventDefault();
@@ -222,9 +222,9 @@ Tampon.Views.Settings = Backbone.View.extend({
 	},
 	saveSettings: function(e){
 		var btn = $(e.target);
-		Tampon.events.trigger('button:setstate', btn, 'loading');
+		Circular.events.trigger('button:setstate', btn, 'loading');
 		setTimeout(function(){
-			Tampon.events.trigger('button:setstate', btn, 'reset');
+			Circular.events.trigger('button:setstate', btn, 'reset');
 		}, 500);
 		
 		this.model.set('timezone', this.$("select.timezone").val());
@@ -238,7 +238,7 @@ Tampon.Views.Settings = Backbone.View.extend({
 			});
 		});
 		// Sort times by chronological order:
-		times = _.sortBy(times, Tampon.Utils.Time.secondsFrom12HourTime);
+		times = _.sortBy(times, Circular.Utils.Time.secondsFrom12HourTime);
 		this.model.set('times', times);
 		
 		this.model.set('email', this.$('input.email').val());
@@ -248,12 +248,12 @@ Tampon.Views.Settings = Backbone.View.extend({
 		// Refresh displayed times in Settings:
 		this.renderTimes();
 		// Trigger event so that posting times in the Timeline view can be refreshed:
-		Tampon.events.trigger('settings:saved');
+		Circular.events.trigger('settings:saved');
 	}
 });
 
 
-Tampon.Models.Post = Backbone.Model.extend({
+Circular.Models.Post = Backbone.Model.extend({
 	initialize: function(attributes){
 		if (this.get('status') == "") {
 			this.set('status', this.randomQuote());
@@ -278,7 +278,7 @@ Tampon.Models.Post = Backbone.Model.extend({
 		];
 		
 		quotes = _.map(quotes, function(quote){
-			quote += " ~ via @TamponApp";
+			quote += " ~ via @CircularIO";
 			return quote;
 		});
 		
@@ -287,11 +287,11 @@ Tampon.Models.Post = Backbone.Model.extend({
 });
 
 
-Tampon.Collections.Posts = Backbone.Collection.extend({
+Circular.Collections.Posts = Backbone.Collection.extend({
 	url: "api/posts",
-	model: Tampon.Models.Post,
+	model: Circular.Models.Post,
 	initialize: function(){
-		Tampon.events.on('ui:posts:sort', this.refreshPostsOrder, this);
+		Circular.events.on('ui:posts:sort', this.refreshPostsOrder, this);
 	},
 	refreshPostsOrder: function(order){
 		// Refresh sorting order after jQuery UI sorting:
@@ -300,11 +300,11 @@ Tampon.Collections.Posts = Backbone.Collection.extend({
 		this.models = this.sortBy(function(post){
 			return _.indexOf(order, post.id);
 		});
-		Tampon.events.trigger('posts:sort', order);
+		Circular.events.trigger('posts:sort', order);
 	},
 	groupByUser: function(){
 		var users = {};
-		_.each(Tampon.users, function(value, key){
+		_.each(Circular.users, function(value, key){
 			users[key] = [];
 		});
 		var out = this.groupBy(function(post){
@@ -316,7 +316,7 @@ Tampon.Collections.Posts = Backbone.Collection.extend({
 });
 
 
-Tampon.Views.Composer = Backbone.View.extend({
+Circular.Views.Composer = Backbone.View.extend({
 	el: ".composer",
 	templateAvatar: $("#tpl-profile").html(),
 	events: {
@@ -331,12 +331,12 @@ Tampon.Views.Composer = Backbone.View.extend({
 	initialize: function(){
 		// Handle query string value (generated by the bookmarklet)
 		// and update countdown accordingly:
-		this.$("#textarea").val(Tampon.Utils.getParameterByName('p'));
+		this.$("#textarea").val(Circular.Utils.getParameterByName('p'));
 		this.countdown();
 		this.renderAvatars();
 		
-		Tampon.events.on('posts:suggestpost', this.suggestpost, this);
-		Tampon.events.on('tab:selected', this.selectProfile, this);
+		Circular.events.on('posts:suggestpost', this.suggestpost, this);
+		Circular.events.on('tab:selected', this.selectProfile, this);
 		
 		$(".dropzone").filedrop({
 			url: "api/upload",
@@ -359,7 +359,7 @@ Tampon.Views.Composer = Backbone.View.extend({
 	},
 	renderAvatars: function(){
 		this.$("#profiles").html('');
-		_.each(Tampon.users, function(user){
+		_.each(Circular.users, function(user){
 			var output = Mustache.render(this.templateAvatar, user);
 			if (user.selected) {
 				output = $(output).attr('title', $(output).attr('data-title-selected'));
@@ -387,15 +387,15 @@ Tampon.Views.Composer = Backbone.View.extend({
 	},
 	postnow: function(e){
 		var btn = $(e.target);
-		Tampon.events.trigger('button:setstate', btn, 'loading');
+		Circular.events.trigger('button:setstate', btn, 'loading');
 		setTimeout(function(){
-			Tampon.events.trigger('button:setstate', btn, 'reset');
-			new Tampon.Views.Alert({type: "alert-success", content: "This post has been successfully queued to be posted to Twitter"});
+			Circular.events.trigger('button:setstate', btn, 'reset');
+			new Circular.Views.Alert({type: "alert-success", content: "This post has been successfully queued to be posted to Twitter"});
 		}, 500);
 		
 		_.each(this.getPostsToSave(), function(post){
 			post.time = "now";
-			var postnow = new Tampon.Models.Post(post);
+			var postnow = new Circular.Models.Post(post);
 			// As this model is outside of the collection, we have to specify a urlRoot to save it to 
 			// (it's actually the same endpoint as the collection itself):
 			postnow.urlRoot = "api/posts";
@@ -411,7 +411,7 @@ Tampon.Views.Composer = Backbone.View.extend({
 		this.resetComposer();
 	},
 	errorSave: function(){
-		new Tampon.Views.Alert({type: "alert-error", content: "Something went wrong while saving your post..."});
+		new Circular.Views.Alert({type: "alert-error", content: "Something went wrong while saving your post..."});
 	},
 	countdown: function(e){
 		if (e) {
@@ -449,7 +449,7 @@ Tampon.Views.Composer = Backbone.View.extend({
 		this.$(".picturezone").hide();
 	},
 	suggestpost: function(){
-		var post = new Tampon.Models.Post();
+		var post = new Circular.Models.Post();
 		this.$("#textarea").val(post.randomQuote());
 		this.countdown();
 	},
@@ -471,21 +471,21 @@ Tampon.Views.Composer = Backbone.View.extend({
 		profile.tooltip('hide');
 		profile.data('tooltip', false);
 		profile.tooltip('show');
-		// Update Tampon.users itself:
+		// Update Circular.users itself:
 		var id = profile.attr('data-id');
-		Tampon.users[id].selected = (Tampon.users[id].selected) ? undefined : 'selected';
+		Circular.users[id].selected = (Circular.users[id].selected) ? undefined : 'selected';
 	},
 	selectProfile: function(id){
 		// Select this and only this profile:
-		_.each(Tampon.users, function(user){
+		_.each(Circular.users, function(user){
 			user.selected = undefined;
 		});
-		Tampon.users[id].selected = 'selected';
+		Circular.users[id].selected = 'selected';
 		this.renderAvatars();
 	},
 	getSelectedProfiles: function(){
 		return _.pluck(
-			_.filter(Tampon.users, function(user){
+			_.filter(Circular.users, function(user){
 				return user.selected == 'selected';
 			}),
 			'id'
@@ -494,7 +494,7 @@ Tampon.Views.Composer = Backbone.View.extend({
 });
 
 
-Tampon.Views.Posts = Backbone.View.extend({
+Circular.Views.Posts = Backbone.View.extend({
 	el: ".posts",
 	template:         $("#tpl-post").html(),
 	templateTab:      $("#tpl-tab").html(),
@@ -533,9 +533,9 @@ Tampon.Views.Posts = Backbone.View.extend({
 	formatTime: function(post){
 		// This function is called on each post, after the initial fetch, or after each times refresh.
 		// (Maybe it should be in the model instead.)
-		post.local12HourTimeAndDay = Tampon.Utils.Time.local12HourTimeAndDayFromTimeStamp(post.get('time'));
+		post.local12HourTimeAndDay = Circular.Utils.Time.local12HourTimeAndDayFromTimeStamp(post.get('time'));
 		// Is there any way to add a local-only attribute? (that won't ever be sent to server)
-		post.set({formattedTime: Tampon.Utils.Time.format12HourTime(post.local12HourTimeAndDay)});
+		post.set({formattedTime: Circular.Utils.Time.format12HourTime(post.local12HourTimeAndDay)});
 	},
 	renderPostsTimesAndHeadings: function(){
 		this.renderPostsTimes();
@@ -561,7 +561,7 @@ Tampon.Views.Posts = Backbone.View.extend({
 				// We assume the collection is ordered by time (it always should be)
 				if (post.local12HourTimeAndDay.day > day) {
 					day = post.local12HourTimeAndDay.day;
-					$("#post-"+post.id).before('<li class="heading"><h3>' + Tampon.Utils.Time.formatDay(day) + '</h3></li>');
+					$("#post-"+post.id).before('<li class="heading"><h3>' + Circular.Utils.Time.formatDay(day) + '</h3></li>');
 				}
 			});
 		});
@@ -576,7 +576,7 @@ Tampon.Views.Posts = Backbone.View.extend({
 		post.fadeOut('fast', function(){
 			$(this).remove();
 		});
-		new Tampon.Views.Alert({type: "", content: "This post has been deleted"});
+		new Circular.Views.Alert({type: "", content: "This post has been deleted"});
 		// Proceed to delete:
 		this.collection.get(id).destroy();
 	},
@@ -588,7 +588,7 @@ Tampon.Views.Posts = Backbone.View.extend({
 			$(this).remove();
 		});
 		setTimeout(function(){
-			new Tampon.Views.Alert({type: "alert-success", content: "This post has been successfully queued to be posted to Twitter"});
+			new Circular.Views.Alert({type: "alert-success", content: "This post has been successfully queued to be posted to Twitter"});
 		}, 500);
 		
 		// Update post's time on the server to "now":
@@ -597,7 +597,7 @@ Tampon.Views.Posts = Backbone.View.extend({
 		this.collection.remove(this.collection.get(id));
 	},
 	suggestpost: function(){
-		Tampon.events.trigger('posts:suggestpost');
+		Circular.events.trigger('posts:suggestpost');
 	},
 	checkEmptyViewAndTabCount: function(){
 		this.checkEmptyView();
@@ -626,12 +626,12 @@ Tampon.Views.Posts = Backbone.View.extend({
 	},
 	renderTabs: function(){
 		// Tabs:
-		_.each(Tampon.users, function(user){
+		_.each(Circular.users, function(user){
 			var output = Mustache.render(this.templateTab, user);
 			this.$("ul.tabs").append(output);
 		}, this);
 		// Tab contents (timelines):
-		_.each(Tampon.users, function(user){
+		_.each(Circular.users, function(user){
 			var html = Mustache.render(this.templateTimeline, user);
 			var output = $(html);
 			if (!user.selected) {
@@ -648,7 +648,7 @@ Tampon.Views.Posts = Backbone.View.extend({
 		this.$("ul.timeline").bind("sortstop", function(){
 			// New order for our ids:
 			var order = $(this).sortable('toArray', {attribute: "data-id"});
-			Tampon.events.trigger('ui:posts:sort', order);
+			Circular.events.trigger('ui:posts:sort', order);
 		});
 	},
 	selectTab: function(e){
@@ -657,7 +657,7 @@ Tampon.Views.Posts = Backbone.View.extend({
 		var id = $(e.currentTarget).attr('data-id');
 		this.$('.timeline-wrapper').hide();
 		this.timeline(id).show();
-		Tampon.events.trigger('tab:selected', id);
+		Circular.events.trigger('tab:selected', id);
 	},
 	timeline: function(user){
 		return this.$("#timeline-"+user);
@@ -668,14 +668,14 @@ Tampon.Views.Posts = Backbone.View.extend({
 });
 
 
-Tampon.Models.PostsTimes = Backbone.Model.extend({
+Circular.Models.PostsTimes = Backbone.Model.extend({
 	urlRoot: "api/times",
 	initialize: function(options){
 		this.posts    = options.posts;
 		this.settings = options.settings;
 		
-		Tampon.events.on('posts:sort', this.computePostsTimes, this);
-		Tampon.events.on('settings:saved', this.computePostsTimes, this);
+		Circular.events.on('posts:sort', this.computePostsTimes, this);
+		Circular.events.on('settings:saved', this.computePostsTimes, this);
 		this.posts.on('add', this.computePostsTimes, this);
 		this.posts.on('remove', this.computePostsTimes, this);
 	},
@@ -689,14 +689,14 @@ Tampon.Models.PostsTimes = Backbone.Model.extend({
 	},
 	computePostsTimesForUser: function(posts, user){
 		var date = new Date();
-		var secondsUpToNowToday = Tampon.Utils.Time.secondsFrom24HourTime({
+		var secondsUpToNowToday = Circular.Utils.Time.secondsFrom24HourTime({
 			hour: date.getHours(),
 			minute: date.getMinutes()
 		});
 		
 		var times = this.settings.get('times');
 		// Let's find which scheduled time is the next one:
-		var i = _.sortedIndex(_.map(times, Tampon.Utils.Time.secondsFrom12HourTime), secondsUpToNowToday);
+		var i = _.sortedIndex(_.map(times, Circular.Utils.Time.secondsFrom12HourTime), secondsUpToNowToday);
 		// So times[i] is the next scheduled time.
 		// More precisely: times[i % times.length]
 		
@@ -709,11 +709,11 @@ Tampon.Models.PostsTimes = Backbone.Model.extend({
 			// This post must be scheduled to be sent in `day` days, at time `times[i % times.length]`:
 			
 			// Now compute the UNIX timestamp for this time:
-			var then = new Date(date.getFullYear(), date.getMonth(), date.getDate() + day, 0, 0, Tampon.Utils.Time.secondsFrom12HourTime(times[i % times.length]));
+			var then = new Date(date.getFullYear(), date.getMonth(), date.getDate() + day, 0, 0, Circular.Utils.Time.secondsFrom12HourTime(times[i % times.length]));
 			// We use the fact that this method "expands" parameters.
 			// (ie: you can specify 32 days or 5000 seconds, parameters will overflow)
 			// @todo: Check that this is documented and standard.
-			var timestamp = Tampon.Utils.Time.generateUnixTimestamp(then);
+			var timestamp = Circular.Utils.Time.generateUnixTimestamp(then);
 			
 			post.set({time: timestamp});
 			
@@ -738,14 +738,14 @@ Tampon.Models.PostsTimes = Backbone.Model.extend({
 			contentType: 'application/json',
 			dataType: 'json',
 			error: function(){
-				new Tampon.Views.Alert({type: "alert-error", content: "Something went wrong while updating your posts..."});
+				new Circular.Views.Alert({type: "alert-error", content: "Something went wrong while updating your posts..."});
 			}
 		});
 	}
 });
 
 
-Tampon.App = {
+Circular.App = {
 	/* This is simple app-level jQuery stuff for which Backbone seems overkill */
 	initialize: function() {
 		
@@ -760,24 +760,24 @@ Tampon.App = {
 				$(".not-logged-in").hide();
 				$(".logged-in").show();
 				// Store logged in data:
-				Tampon.account = data.id;
-				Tampon.users   = data.users;
+				Circular.account = data.id;
+				Circular.users   = data.users;
 				// Select the first user by default:
 				// Too bad there's no _.first() function that works on an object-type collection.
 				var i = 1;
-				_.each(Tampon.users, function(user){
+				_.each(Circular.users, function(user){
 					if (i == 1) {
 						user.selected = 'selected';
 					}
 					i++;
 				});
 				// Trigger "logged in" event:
-				Tampon.events.trigger('loggedin');
+				Circular.events.trigger('loggedin');
 			}
 			else {
 				// Else we'll just update the posts counter:
-				Tampon.App.updateCounter();
-				setInterval(Tampon.App.updateCounter, 10000);
+				Circular.App.updateCounter();
+				setInterval(Circular.App.updateCounter, 10000);
 			}
 		});
 		
@@ -791,7 +791,7 @@ Tampon.App = {
 					}
 				},
 				error: function(data){
-					new Tampon.Views.Alert({type: "alert-error", content: "Unknown Twitter API error"});
+					new Circular.Views.Alert({type: "alert-error", content: "Unknown Twitter API error"});
 				}
 			});
 		});
@@ -825,7 +825,7 @@ Tampon.App = {
 			animation: false
 		});
 		
-		Tampon.events.on('button:setstate', function(btn, state){
+		Circular.events.on('button:setstate', function(btn, state){
 			btn.button(state);
 		});
 		
@@ -852,23 +852,23 @@ Tampon.App = {
 $(document).ready(function(){
 	
 	// Initialize App
-	Tampon.App.initialize();
+	Circular.App.initialize();
 	
 	
-	Tampon.events.on('loggedin', function(){
+	Circular.events.on('loggedin', function(){
 		
 		// Initialize Settings
-		var settings = new Tampon.Models.Settings();
-		new Tampon.Views.Settings({model: settings});
+		var settings = new Circular.Models.Settings();
+		new Circular.Views.Settings({model: settings});
 		
 		// Initialize Composer and Posts
-		var posts = new Tampon.Collections.Posts();
+		var posts = new Circular.Collections.Posts();
 		posts.fetch();
-		new Tampon.Views.Composer({collection: posts});
-		new Tampon.Views.Posts({collection: posts});
+		new Circular.Views.Composer({collection: posts});
+		new Circular.Views.Posts({collection: posts});
 		
 		// Initialize PostsTimes
-		var poststimes = new Tampon.Models.PostsTimes({posts: posts, settings: settings});
+		var poststimes = new Circular.Models.PostsTimes({posts: posts, settings: settings});
 	});
 	
 });

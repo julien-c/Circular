@@ -76,7 +76,7 @@ $protected->get('/posts', function () use ($app) {
 	// Retrieve all posts by users managed by current account, sorted by time ascending:
 	
 	$m = new Mongo();
-	$posts = $m->tampon->posts
+	$posts = $m->circular->posts
 		->find(array('user._id' => array('$in' => $app['account']['users'])))
 		->sort(array('time' => 1));
 	
@@ -123,7 +123,7 @@ $protected->post('/posts', function (Request $request) use ($app) {
 	
 	// Add user information:
 	$m = new Mongo();
-	$user = $m->tampon->users->findOne(array('_id' => new MongoId($post['user'])));
+	$user = $m->circular->users->findOne(array('_id' => new MongoId($post['user'])));
 	$post['user'] = $user;
 	
 	// Add Twitter request info:
@@ -149,10 +149,10 @@ $protected->post('/posts', function (Request $request) use ($app) {
 	
 	if (isset($post['time']) && $post['time'] == "now") {
 		// If explicitly requested, send it right now through `queue`:
-		$m->tampon->queue->insert($post);
+		$m->circular->queue->insert($post);
 	}
 	else {
-		$m->tampon->posts->insert($post);
+		$m->circular->posts->insert($post);
 	}
 	
 	// MongoId are assumed to be unique accross collections
@@ -167,7 +167,7 @@ $protected->delete('/posts/{id}', function (Request $request, $id) use ($app) {
 	// According to the assert, this looks like a valid MongoId
 	
 	$m = new Mongo();
-	$m->tampon->posts->remove(array(
+	$m->circular->posts->remove(array(
 		'_id'      => new MongoId($id),
 		'user._id' => array('$in' => $app['account']['users'])
 	));
@@ -186,7 +186,7 @@ $protected->put('/posts/{id}', function (Request $request, $id) use ($app) {
 	if (isset($put['time']) && $put['time'] == "now") {
 		
 		$m = new Mongo();
-		$post = $m->tampon->posts->findOne(array(
+		$post = $m->circular->posts->findOne(array(
 			'_id'      => new MongoId($id),
 			'user._id' => array('$in' => $app['account']['users'])
 		));
@@ -194,8 +194,8 @@ $protected->put('/posts/{id}', function (Request $request, $id) use ($app) {
 		
 		if ($post) {
 			// Move to sending queue:
-			$m->tampon->queue->insert($post);
-			$m->tampon->posts->remove(array('_id' => $post['_id']));
+			$m->circular->queue->insert($post);
+			$m->circular->posts->remove(array('_id' => $post['_id']));
 		}
 	}
 })
@@ -214,7 +214,7 @@ $protected->post('/times', function (Request $request) use ($app) {
 	$posts = $app['data']['posts'];
 	
 	$m = new Mongo();
-	$mongoposts = $m->tampon->posts;
+	$mongoposts = $m->circular->posts;
 	
 	foreach ($posts as $post) {
 		$mongoposts->update(
@@ -268,7 +268,7 @@ $protected->post('/upload', function (Request $request) use ($app) {
 
 $protected->get('/settings', function (Request $request) use ($app) {
 	$m = new Mongo();
-	$account = $m->tampon->accounts->findOne(array('_id' => new MongoId($app['account']['id'])));
+	$account = $m->circular->accounts->findOne(array('_id' => new MongoId($app['account']['id'])));
 	unset($account['users']);
 	return $app->json($account);
 });
@@ -278,13 +278,13 @@ $protected->post('/settings', function (Request $request) use ($app) {
 	
 	$m = new Mongo();
 	if ($email) {
-		$m->tampon->accounts->update(
+		$m->circular->accounts->update(
 			array('_id'  => new MongoId($app['account']['id'])),
 			array('$set' => array('email' => $email))
 		);
 	}
 	else {
-		$m->tampon->accounts->update(
+		$m->circular->accounts->update(
 			array('_id'  => new MongoId($app['account']['id'])),
 			array('$unset' => array('email' => true))
 		);
@@ -301,7 +301,7 @@ $protected->post('/settings', function (Request $request) use ($app) {
 
 $public->get('/counter', function (Request $request) use ($app) {
 	$m = new Mongo();
-	$count = $m->tampon->posts->count();
+	$count = $m->circular->posts->count();
 	return $app->json(array('count' => $count));
 });
 

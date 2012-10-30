@@ -28,10 +28,10 @@ Installation:
 * Create a new Twitter application on dev.twitter.com, then copy your credentials into `api/config.php.sample` and rename it to `api/config.php`
 * Install the Silex application dependencies using Composer: `cd api && composer install`
 * Create an `uploads` directory and make it writable by the Web server
-* Your application's frontend should now be accessible where you set it up, for instance at `http://localhost/Tampon`. The MongoDB datastore's name will be `tampon` (you don't have to explicitly create it).
+* Your application's frontend should now be accessible where you set it up, for instance at `http://localhost/Circular`. The MongoDB datastore's name will be `circular` (you don't have to explicitly create it).
 * Start the daemon with `php Daemon/run.php` 
   * Use option `-d` to run as daemon, i.e. detach and run in the background
-  * Your daemon's log will be in `/var/log/daemons/tampon`, or if this is not writable, in `Daemon/logs`. You can use/rotate this log to monitor your daemon.
+  * Your daemon's log will be in `/var/log/daemons/circular`, or if this is not writable, in `Daemon/logs`. You can use/rotate this log to monitor your daemon.
 * That's it!
 
 

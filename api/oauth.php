@@ -97,7 +97,7 @@ function access_token($tmhOAuth) {
 		$user_id = (int) $access_token['user_id'];
 		
 		$m = new Mongo();
-		$user = $m->tampon->users->findOne(array('user_id' => $user_id));
+		$user = $m->circular->users->findOne(array('user_id' => $user_id));
 		
 		if ($user) {
 			// This Twitter user has already logged in before.
@@ -112,7 +112,7 @@ function access_token($tmhOAuth) {
 				'user_secret'      =>       $access_token['oauth_token_secret']
 			);
 			
-			$m->tampon->users->insert($user, array('safe' => true));
+			$m->circular->users->insert($user, array('safe' => true));
 		}
 		
 		// We now have our $user, including $user['_id'] (the user's MongoId in our system).
@@ -121,17 +121,17 @@ function access_token($tmhOAuth) {
 		if (isset($_SESSION['account']['id'])) {
 			// We already have a logged in user account
 			
-			$m->tampon->accounts->update(
+			$m->circular->accounts->update(
 				array('_id' => new MongoId($_SESSION['account']['id'])),
 				array('$addToSet' => array('users' => $user['_id'])),
 				array('safe' => true)
 			);
-			$account = $m->tampon->accounts->findOne(array('_id' => new MongoId($_SESSION['account']['id'])));
+			$account = $m->circular->accounts->findOne(array('_id' => new MongoId($_SESSION['account']['id'])));
 			// Is there a way to do the previous two operations in one operation?
 			
 			// Remove the user from any other account (we don't want any user to be managed by several accounts)
 			// This enables "merging" accounts.
-			$m->tampon->accounts->update(
+			$m->circular->accounts->update(
 				array(
 					'_id' => array('$ne' => new MongoId($_SESSION['account']['id'])),
 					'users' => $user['_id']
@@ -145,7 +145,7 @@ function access_token($tmhOAuth) {
 		else {
 			// No account's logged in right now
 			
-			$account = $m->tampon->accounts->findOne(array('users' => $user['_id']));
+			$account = $m->circular->accounts->findOne(array('users' => $user['_id']));
 			if ($account) {
 				// We have retrieved an existing account for this user.
 			}
@@ -153,7 +153,7 @@ function access_token($tmhOAuth) {
 				// We don't have an account for this user, let's create one:
 				$account = array('users' => array($user['_id']));
 				
-				$m->tampon->accounts->insert(
+				$m->circular->accounts->insert(
 					$account,
 					array('safe' => true)
 				);
@@ -180,7 +180,7 @@ function access_token($tmhOAuth) {
 // Step 4: Now the user has authenticated, do something with the permanent token and secret we received
 function verify_credentials($tmhOAuth, $id) {
 	$m = new Mongo();
-	$user = $m->tampon->users->findOne(array('_id' => new MongoId($id)));
+	$user = $m->circular->users->findOne(array('_id' => new MongoId($id)));
 	
 	$tmhOAuth->config['user_token']  = $user['user_token'];
 	$tmhOAuth->config['user_secret'] = $user['user_secret'];

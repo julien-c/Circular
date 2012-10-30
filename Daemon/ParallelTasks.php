@@ -50,11 +50,11 @@ class ParallelTasks extends \Core_Daemon
 			'follow' => 'follows'
 		);
 		foreach ($types as $type => $collection) {
-			$items = $m->tampon->$collection->find(array('time' => array('$lte' => new \MongoDate($currentUnixTime))));
+			$items = $m->circular->$collection->find(array('time' => array('$lte' => new \MongoDate($currentUnixTime))));
 			
 			foreach ($items as $item) {
-				$m->tampon->queue->insert($item);
-				$m->tampon->$collection->remove(array('_id' => $item['_id']));
+				$m->circular->queue->insert($item);
+				$m->circular->$collection->remove(array('_id' => $item['_id']));
 				$this->log(sprintf(
 					"Moved scheduled `%s` %s to request queue", 
 					$item['type'],
@@ -67,7 +67,7 @@ class ParallelTasks extends \Core_Daemon
 		
 		
 		// Step 2: send queued requests (`queue`) to Twitter and move them to `archive` along with their result.
-		$items = $m->tampon->queue->find();
+		$items = $m->circular->queue->find();
 		
 		foreach ($items as $item) {
 			
@@ -78,7 +78,7 @@ class ParallelTasks extends \Core_Daemon
 				
 				$item['processing'] = true;
 				$item['processing_since'] = self::getCurrentUnixTimestamp();
-				$m->tampon->queue->update(array('_id' => $item['_id']), $item);
+				$m->circular->queue->update(array('_id' => $item['_id']), $item);
 				
 				// We can't use Task process forking for now because of a MongoDB PHP driver bug...
 				// @see  https://jira.mongodb.org/browse/PHP-446
@@ -157,8 +157,8 @@ class ParallelTasks extends \Core_Daemon
 				$archives = array('post' => 'archive', 'follow' => 'archive-follows', 'post_with_media' => 'archive');
 				$archive = $archives[$item['type']];
 				
-				$m->tampon->$archive->insert($item);
-				$m->tampon->queue->remove(array('_id' => $item['_id']));
+				$m->circular->$archive->insert($item);
+				$m->circular->queue->remove(array('_id' => $item['_id']));
 				
 				if ($code == 200) {
 					$this->log(sprintf(
@@ -193,7 +193,7 @@ class ParallelTasks extends \Core_Daemon
 	 */
 	protected function log_file()
 	{	
-		$dir = '/var/log/daemons/tampon';
+		$dir = '/var/log/daemons/circular';
 		if (@file_exists($dir) == false)
 			@mkdir($dir, 0777, true);
 		

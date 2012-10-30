@@ -84,8 +84,8 @@ class SendPostTask implements \Core_ITask
         unset($post['processing']);
         unset($post['processing_time']);
         $m = new \Mongo();
-        $m->tampon->archive->insert($post);
-        $m->tampon->posts->remove(array('_id' => $post['_id']));
+        $m->circular->archive->insert($post);
+        $m->circular->posts->remove(array('_id' => $post['_id']));
         
         if ($code == 200) {
             $this->daemon->log(sprintf(
