@@ -1,7 +1,7 @@
 {
   "name": "Circular",
-  "description": "A free open source Buffer clone",
-  "version": "1.0",
+  "description": "The free tweet scheduling app.",
+  "version": "1.0.2",
   "app": {
     "urls": [
       "*://circular.io/"
