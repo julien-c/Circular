@@ -53,9 +53,13 @@ div.section {
 	padding: 20px;
 }
 
-.colophon {
+.colophon, .colophon a {
 	font-weight: 300;
 	color: #828CA7;
+}
+
+.colophon a:hover {
+	text-decoration: none;
 }
 
 div.github {
