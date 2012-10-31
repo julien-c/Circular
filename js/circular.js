@@ -409,6 +409,7 @@ Circular.Views.Composer = Backbone.View.extend({
 			// Wait for the server to respond with a Mongo id.
 		}, this);
 		this.resetComposer();
+		Circular.events.trigger('track:post');
 	},
 	errorSave: function(){
 		new Circular.Views.Alert({type: "alert-error", content: "Something went wrong while saving your post..."});
@@ -834,6 +835,17 @@ Circular.App = {
 		$("#textarea").bind('keydown', 'meta+return', function(){
 			$("#addtoposts").click();
 		});
+		
+		/* Event tracking */
+		Circular.events.on('track:post', function(){
+			Circular.App.trackEvent('Posts', 'add');
+		});
+	},
+	trackEvent: function(category, action, label, value, noninteraction){
+		// Wrapper to Google Analytics' event tracking, if present on the page:
+		if (_gaq) {
+			_gaq.push(['_trackEvent', category, label]);
+		}
 	},
 	updateCounter: function(){
 		$.getJSON("api/counter", function(data){
