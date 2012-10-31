@@ -20,6 +20,8 @@ $tmhOAuth = new tmhOAuth(array(
 
 header('Content-type: application/json');
 
+session_set_cookie_params(60*60*24*30);
+ini_set('session.gc_maxlifetime', 60*60*24*30);
 session_start();
 
 
