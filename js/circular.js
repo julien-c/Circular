@@ -843,7 +843,7 @@ Circular.App = {
 	},
 	trackEvent: function(category, action, label, value, noninteraction){
 		// Wrapper to Google Analytics' event tracking, if present on the page:
-		if (_gaq) {
+		if (typeof _gaq !== 'undefined') {
 			_gaq.push(['_trackEvent', category, label]);
 		}
 	},
