@@ -5573,7 +5573,6 @@ Circular.Utils = {
 	}
 };
 
-
 Circular.Utils.Time = {
 	generateUnixTimestamp: function(then){
 		return Math.floor(then.getTime() / 1000);
@@ -5644,21 +5643,113 @@ Circular.Utils.Time = {
 };
 
 
-Circular.Views.Alert = Backbone.View.extend({
-	el: "#alerts",
-	template: $("#tpl-alert").html(),
-	initialize: function(options){
-		this.type = options.type;
-		this.content = options.content;
-		this.render();
+Circular.Models.Post = Backbone.Model.extend({
+	initialize: function(attributes){
+		if (this.get('status') == "") {
+			this.set('status', this.randomQuote());
+		}
+		// We don't set the time now as it will be set after refreshing posting times
 	},
-	render: function(){
-		var output = Mustache.render(
-			this.template, 
-			{type: this.type, content: this.content}
-		);
-		$(output).prependTo(this.$el).delay(2000).fadeOut();
-		return this;
+	randomQuote: function(){
+		var quotes = [
+			"All wrong-doing arises because of mind. If mind is transformed can wrong-doing remain?",
+			"Ambition is like love, impatient both of delays and rivals.",
+			"An idea that is developed and put into action is more important than an idea that exists only as an idea.",
+			"Thousands of candles can be lit from a single candle, and the life of the candle will not be shortened.",
+			"Do not dwell in the past, do not dream of the future, concentrate the mind on the present moment.",
+			"Do not overrate what you have received, nor envy others. He who envies others does not obtain peace of mind.",
+			"The mind is everything. What you think you become.",
+			"No one saves us but ourselves. No one can and no one may. We ourselves must walk the path.",
+			"Peace comes from within. Do not seek it without.",
+			"The only real failure in life is not to be true to the best one knows.",
+			"The way is not in the sky. The way is in the heart.",
+			"There are only two mistakes one can make along the road to truth; not going all the way, and not starting.",
+			"There has to be evil so that good can prove its purity above it."
+		];
+		
+		quotes = _.map(quotes, function(quote){
+			quote += " ~ via @CircularIO";
+			return quote;
+		});
+		
+		return quotes[Math.floor(Math.random()*quotes.length)];
+	}
+});
+
+
+Circular.Models.PostsTimes = Backbone.Model.extend({
+	urlRoot: "api/times",
+	initialize: function(options){
+		this.posts    = options.posts;
+		this.settings = options.settings;
+		
+		Circular.events.on('posts:sort', this.computePostsTimes, this);
+		Circular.events.on('settings:saved', this.computePostsTimes, this);
+		this.posts.on('add', this.computePostsTimes, this);
+		this.posts.on('remove', this.computePostsTimes, this);
+	},
+	computePostsTimes: function(){
+		_.each(this.posts.groupByUser(), function(posts, user){
+			this.computePostsTimesForUser(posts, user);
+		}, this);
+		
+		this.posts.trigger('poststimes:refresh');
+		this.save();
+	},
+	computePostsTimesForUser: function(posts, user){
+		var date = new Date();
+		var secondsUpToNowToday = Circular.Utils.Time.secondsFrom24HourTime({
+			hour: date.getHours(),
+			minute: date.getMinutes()
+		});
+		
+		var times = this.settings.get('times');
+		// Let's find which scheduled time is the next one:
+		var i = _.sortedIndex(_.map(times, Circular.Utils.Time.secondsFrom12HourTime), secondsUpToNowToday);
+		// So times[i] is the next scheduled time.
+		// More precisely: times[i % times.length]
+		
+		var day = 0;
+		
+		_.each(posts, function(post){
+			if ((i % times.length == 0) && (i > 0)){
+				day++;
+			}
+			// This post must be scheduled to be sent in `day` days, at time `times[i % times.length]`:
+			
+			// Now compute the UNIX timestamp for this time:
+			var then = new Date(date.getFullYear(), date.getMonth(), date.getDate() + day, 0, 0, Circular.Utils.Time.secondsFrom12HourTime(times[i % times.length]));
+			// We use the fact that this method "expands" parameters.
+			// (ie: you can specify 32 days or 5000 seconds, parameters will overflow)
+			// @todo: Check that this is documented and standard.
+			var timestamp = Circular.Utils.Time.generateUnixTimestamp(then);
+			
+			post.set({time: timestamp});
+			
+			i++;
+		});
+	},
+	save: function(){
+		// Only keep id and time from the Posts collection:
+		var posts = [];
+		this.posts.each(function(post){
+			posts.push({
+				id:    post.id,
+				time:  post.get('time')
+			});
+		});
+		
+		// Now save to server:
+		$.ajax({
+			url: this.urlRoot,
+			type: 'POST',
+			data: JSON.stringify({posts: posts}), 
+			contentType: 'application/json',
+			dataType: 'json',
+			error: function(){
+				new Circular.Views.Alert({type: "alert-error", content: "Something went wrong while updating your posts..."});
+			}
+		});
 	}
 });
 
@@ -5722,120 +5813,6 @@ Circular.Models.Settings = Backbone.Model.extend({
 });
 
 
-Circular.Views.Settings = Backbone.View.extend({
-	el: $(".settings"),
-	templateSettingsTime: $("#tpl-time").html(),
-	events: {
-		"click #addtime":                    "addtime",
-		"click .settings-time button.close": "removetime",
-		"click #savesettings":               "saveSettings"
-	},
-	initialize: function(){
-		Circular.events.on('settings:fetched', this.render, this);
-	},
-	addtime: function(e){
-		e.preventDefault();
-		var output = Mustache.render(this.templateSettingsTime, {});
-		this.$(".times").append(output);
-	},
-	removetime: function(e){
-		e.preventDefault();
-		$(e.target).closest(".settings-time").fadeOut('fast', function(){
-			$(this).remove();
-		});
-	},
-	render: function(){
-		// Set frontend to current values from model:
-		this.renderTimezone();
-		this.renderTimes();
-		this.renderEmail();
-	},
-	renderTimezone: function(){
-		this.$("select.timezone").val(this.model.get('timezone'));
-	},
-	renderTimes: function(){
-		// First clear displayed times (as we use this function when refreshing times after saving, to render them ordered):
-		this.$(".times").empty();
-		
-		_.each(this.model.get('times'), function(time){
-			var output = Mustache.render(this.templateSettingsTime, {});
-			var out = $(output);
-			$("select.hour", out).val(time.hour);
-			$("select.minute", out).val(time.minute);
-			$("select.ampm", out).val(time.ampm);
-			this.$(".times").append(out);
-		}, this);
-	},
-	renderEmail: function(){
-		this.$('input.email').val(this.model.get('email'));
-	},
-	saveSettings: function(e){
-		var btn = $(e.target);
-		Circular.events.trigger('button:setstate', btn, 'loading');
-		setTimeout(function(){
-			Circular.events.trigger('button:setstate', btn, 'reset');
-		}, 500);
-		
-		this.model.set('timezone', this.$("select.timezone").val());
-		
-		var times = [];
-		this.$("p.settings-time").each(function(){
-			times.push({
-				hour:   $(this).find("select.hour").val(),
-				minute: $(this).find("select.minute").val(),
-				ampm:   $(this).find("select.ampm").val(),
-			});
-		});
-		// Sort times by chronological order:
-		times = _.sortBy(times, Circular.Utils.Time.secondsFrom12HourTime);
-		this.model.set('times', times);
-		
-		this.model.set('email', this.$('input.email').val());
-		
-		// Actual saving:
-		this.model.save();
-		// Refresh displayed times in Settings:
-		this.renderTimes();
-		// Trigger event so that posting times in the Timeline view can be refreshed:
-		Circular.events.trigger('settings:saved');
-	}
-});
-
-
-Circular.Models.Post = Backbone.Model.extend({
-	initialize: function(attributes){
-		if (this.get('status') == "") {
-			this.set('status', this.randomQuote());
-		}
-		// We don't set the time now as it will be set after refreshing posting times
-	},
-	randomQuote: function(){
-		var quotes = [
-			"All wrong-doing arises because of mind. If mind is transformed can wrong-doing remain?",
-			"Ambition is like love, impatient both of delays and rivals.",
-			"An idea that is developed and put into action is more important than an idea that exists only as an idea.",
-			"Thousands of candles can be lit from a single candle, and the life of the candle will not be shortened.",
-			"Do not dwell in the past, do not dream of the future, concentrate the mind on the present moment.",
-			"Do not overrate what you have received, nor envy others. He who envies others does not obtain peace of mind.",
-			"The mind is everything. What you think you become.",
-			"No one saves us but ourselves. No one can and no one may. We ourselves must walk the path.",
-			"Peace comes from within. Do not seek it without.",
-			"The only real failure in life is not to be true to the best one knows.",
-			"The way is not in the sky. The way is in the heart.",
-			"There are only two mistakes one can make along the road to truth; not going all the way, and not starting.",
-			"There has to be evil so that good can prove its purity above it."
-		];
-		
-		quotes = _.map(quotes, function(quote){
-			quote += " ~ via @CircularIO";
-			return quote;
-		});
-		
-		return quotes[Math.floor(Math.random()*quotes.length)];
-	}
-});
-
-
 Circular.Collections.Posts = Backbone.Collection.extend({
 	url: "api/posts",
 	model: Circular.Models.Post,
@@ -5861,6 +5838,25 @@ Circular.Collections.Posts = Backbone.Collection.extend({
 		});
 		out = _.extend(users, out);
 		return out;
+	}
+});
+
+
+Circular.Views.Alert = Backbone.View.extend({
+	el: "#alerts",
+	template: $("#tpl-alert").html(),
+	initialize: function(options){
+		this.type = options.type;
+		this.content = options.content;
+		this.render();
+	},
+	render: function(){
+		var output = Mustache.render(
+			this.template, 
+			{type: this.type, content: this.content}
+		);
+		$(output).prependTo(this.$el).delay(2000).fadeOut();
+		return this;
 	}
 });
 
@@ -6218,79 +6214,82 @@ Circular.Views.Posts = Backbone.View.extend({
 });
 
 
-Circular.Models.PostsTimes = Backbone.Model.extend({
-	urlRoot: "api/times",
-	initialize: function(options){
-		this.posts    = options.posts;
-		this.settings = options.settings;
-		
-		Circular.events.on('posts:sort', this.computePostsTimes, this);
-		Circular.events.on('settings:saved', this.computePostsTimes, this);
-		this.posts.on('add', this.computePostsTimes, this);
-		this.posts.on('remove', this.computePostsTimes, this);
+Circular.Views.Settings = Backbone.View.extend({
+	el: $(".settings"),
+	templateSettingsTime: $("#tpl-time").html(),
+	events: {
+		"click #addtime":                    "addtime",
+		"click .settings-time button.close": "removetime",
+		"click #savesettings":               "saveSettings"
 	},
-	computePostsTimes: function(){
-		_.each(this.posts.groupByUser(), function(posts, user){
-			this.computePostsTimesForUser(posts, user);
+	initialize: function(){
+		Circular.events.on('settings:fetched', this.render, this);
+	},
+	addtime: function(e){
+		e.preventDefault();
+		var output = Mustache.render(this.templateSettingsTime, {});
+		this.$(".times").append(output);
+	},
+	removetime: function(e){
+		e.preventDefault();
+		$(e.target).closest(".settings-time").fadeOut('fast', function(){
+			$(this).remove();
+		});
+	},
+	render: function(){
+		// Set frontend to current values from model:
+		this.renderTimezone();
+		this.renderTimes();
+		this.renderEmail();
+	},
+	renderTimezone: function(){
+		this.$("select.timezone").val(this.model.get('timezone'));
+	},
+	renderTimes: function(){
+		// First clear displayed times (as we use this function when refreshing times after saving, to render them ordered):
+		this.$(".times").empty();
+		
+		_.each(this.model.get('times'), function(time){
+			var output = Mustache.render(this.templateSettingsTime, {});
+			var out = $(output);
+			$("select.hour", out).val(time.hour);
+			$("select.minute", out).val(time.minute);
+			$("select.ampm", out).val(time.ampm);
+			this.$(".times").append(out);
 		}, this);
-		
-		this.posts.trigger('poststimes:refresh');
-		this.save();
 	},
-	computePostsTimesForUser: function(posts, user){
-		var date = new Date();
-		var secondsUpToNowToday = Circular.Utils.Time.secondsFrom24HourTime({
-			hour: date.getHours(),
-			minute: date.getMinutes()
-		});
-		
-		var times = this.settings.get('times');
-		// Let's find which scheduled time is the next one:
-		var i = _.sortedIndex(_.map(times, Circular.Utils.Time.secondsFrom12HourTime), secondsUpToNowToday);
-		// So times[i] is the next scheduled time.
-		// More precisely: times[i % times.length]
-		
-		var day = 0;
-		
-		_.each(posts, function(post){
-			if ((i % times.length == 0) && (i > 0)){
-				day++;
-			}
-			// This post must be scheduled to be sent in `day` days, at time `times[i % times.length]`:
-			
-			// Now compute the UNIX timestamp for this time:
-			var then = new Date(date.getFullYear(), date.getMonth(), date.getDate() + day, 0, 0, Circular.Utils.Time.secondsFrom12HourTime(times[i % times.length]));
-			// We use the fact that this method "expands" parameters.
-			// (ie: you can specify 32 days or 5000 seconds, parameters will overflow)
-			// @todo: Check that this is documented and standard.
-			var timestamp = Circular.Utils.Time.generateUnixTimestamp(then);
-			
-			post.set({time: timestamp});
-			
-			i++;
-		});
+	renderEmail: function(){
+		this.$('input.email').val(this.model.get('email'));
 	},
-	save: function(){
-		// Only keep id and time from the Posts collection:
-		var posts = [];
-		this.posts.each(function(post){
-			posts.push({
-				id:    post.id,
-				time:  post.get('time')
+	saveSettings: function(e){
+		var btn = $(e.target);
+		Circular.events.trigger('button:setstate', btn, 'loading');
+		setTimeout(function(){
+			Circular.events.trigger('button:setstate', btn, 'reset');
+		}, 500);
+		
+		this.model.set('timezone', this.$("select.timezone").val());
+		
+		var times = [];
+		this.$("p.settings-time").each(function(){
+			times.push({
+				hour:   $(this).find("select.hour").val(),
+				minute: $(this).find("select.minute").val(),
+				ampm:   $(this).find("select.ampm").val(),
 			});
 		});
+		// Sort times by chronological order:
+		times = _.sortBy(times, Circular.Utils.Time.secondsFrom12HourTime);
+		this.model.set('times', times);
 		
-		// Now save to server:
-		$.ajax({
-			url: this.urlRoot,
-			type: 'POST',
-			data: JSON.stringify({posts: posts}), 
-			contentType: 'application/json',
-			dataType: 'json',
-			error: function(){
-				new Circular.Views.Alert({type: "alert-error", content: "Something went wrong while updating your posts..."});
-			}
-		});
+		this.model.set('email', this.$('input.email').val());
+		
+		// Actual saving:
+		this.model.save();
+		// Refresh displayed times in Settings:
+		this.renderTimes();
+		// Trigger event so that posting times in the Timeline view can be refreshed:
+		Circular.events.trigger('settings:saved');
 	}
 });
 
@@ -6404,11 +6403,6 @@ Circular.App = {
 }
 
 
-
-
-
-
-
 $(document).ready(function(){
 	
 	// Initialize App
@@ -6432,5 +6426,4 @@ $(document).ready(function(){
 	});
 	
 });
-
 

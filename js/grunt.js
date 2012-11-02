@@ -24,7 +24,13 @@ module.exports = function(grunt) {
 					'vendor/mustache.js',
 					'vendor/underscore.js',
 					'vendor/backbone.js',
-					'src/circular.js'
+					'src/bootstrap.js',
+					'src/utils.js',
+					'src/models/*.js',
+					'src/collections/*.js',
+					'src/views/*.js',
+					'src/app.js',
+					'src/start.js',
 				],
 				dest: 'circular.js'
 			}
@@ -36,8 +42,8 @@ module.exports = function(grunt) {
 			}
 		},
 		watch: {
-			files: '<config:lint.files>',
-			tasks: 'lint test'
+			files: '<config:concat.dist.src>',
+			tasks: 'concat min'
 		},
 		uglify: {}
 	});
