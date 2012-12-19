@@ -26,6 +26,7 @@ Installation:
 
 * Make sure you cloned this repo recursively, i.e. with submodules that are in `extlib`
 * Create a new Twitter application on dev.twitter.com, then copy your credentials into `api/config.php.sample` and rename it to `api/config.php`
+  * Make sure to specify an OAuth callback URL in your Twitter application settings. Use `http://[server_name]/[path to buffer]/api/oauth.php`
 * Install the Silex application dependencies using Composer: `cd api && composer install`
 * Create an `uploads` directory and make it writable by the Web server
 * Your application's frontend should now be accessible where you set it up, for instance at `http://localhost/Circular`. The MongoDB datastore's name will be `circular` (you don't have to explicitly create it).
