@@ -107,9 +107,7 @@ $protected->get('/posts', function () use ($app) {
 		$out[] = $post;
 	}
 	
-	echo json_encode($out);
-	// @fixme
-	// return $app->json($out);
+	return $app->json($out);
 });
 
 
