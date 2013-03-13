@@ -244,6 +244,7 @@ $protected->post('/upload', function (Request $request) use ($app) {
 	$file = $request->files->get('userfile');
 	if ($file->isValid()) {
 		$extension = $file->guessExtension();
+		// Use MD5 to prevent collision between different pictures:
 		$md5 = md5_file($file->getRealPath());
 		
 		$filename      = 'uploads/' . $app['account']['id'] . '/' . $md5 . '.' . $extension;
