@@ -89,7 +89,6 @@ $protected->get('/posts', function () use ($app) {
 		// Don't expose authentication info through the API, only the user ID:
 		$post['user'] = (string) $post['user']['_id'];
 		// Don't display Twitter request info either:
-		unset($post['url']);
 		unset($post['type']);
 		
 		
