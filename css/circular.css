@@ -91,18 +91,6 @@ div.github {
 	margin: auto;
 }
 
-.circular-large-logo:hover{
-	-webkit-animation: rotatein 1.5s ease-in-out;
-	-webkit-transition: -webkit-transform 1.5s ease-in-out;
-	-moz-transition: -moz-transform 1.5s ease-in-out;
-	-o-transition: -o-transform 1.5s ease-in-out;
-	transition: transform 1.5s ease-in-out;
-	-webkit-transform: rotate(-360deg);
-	-moz-transform: rotate(-360deg);
-	-o-transform: rotate(-360deg);
-	transform: rotate(-360deg);
-}
-
 .counter {
 	margin-top: 68px;
 	font-size: 46px;
