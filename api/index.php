@@ -271,10 +271,9 @@ $protected->post('/upload', function (Request $request) use ($app) {
  */
 
 $protected->get('/settings', function (Request $request) use ($app) {
-	$m = new Mongo();
-	$account = $m->circular->accounts->findOne(array('_id' => new MongoId($app['account']['id'])));
-	unset($account['users']);
-	return $app->json($account);
+	$account = Account::findOne(array('_id' => new MongoId($app['account']['id'])));
+	unset($account->users);
+	return $app->json($account->toArray());
 });
 
 $protected->post('/settings', function (Request $request) use ($app) {
