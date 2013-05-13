@@ -10,6 +10,20 @@ $app = new Silex\Application();
 
 /***
  *
+ * Let's configure the database we'll use through Mongovel
+ *
+ */
+
+$container = new Illuminate\Container\Container;
+$container->singleton('mongoveldb', function() {
+	return new Mongovel\DB('mongodb://localhost', 'circular');
+});
+
+Mongovel\Mongovel::setContainer($container);
+
+
+/***
+ *
  * Let's group controllers on whether they're `public` or `protected`
  *
  */
@@ -77,9 +91,7 @@ $app->before(function (Request $request) use ($app) {
 $protected->get('/posts', function () use ($app) {
 	// Retrieve all posts by users managed by current account, sorted by time ascending:
 	
-	$m = new Mongo();
-	$posts = $m->circular->posts
-		->find(array('user._id' => array('$in' => $app['account']['users'])))
+	$posts = Post::find(array('user._id' => array('$in' => $app['account']['users'])))
 		->sort(array('time' => 1));
 	
 	
@@ -87,23 +99,19 @@ $protected->get('/posts', function () use ($app) {
 	
 	foreach ($posts as $post) {
 		// Don't expose authentication info through the API, only the user ID:
-		$post['user'] = (string) $post['user']['_id'];
+		$post->user = (string) $post->user['_id'];
 		// Don't display Twitter request info either:
-		unset($post['type']);
-		
+		unset($post->type);
+		$post->status = $post->params['status'];
+		unset($post->params);
 		
 		// Translation layer/adapter for Backbone:
 		// XXX: Use the exact same data in Backbone as in Mongo
 		// @see http://stackoverflow.com/questions/12390553/how-to-make-backbones-and-mongodbs-ids-work-seamlessly
-		$post['id'] = (string) $post['_id'];
-		unset($post['_id']);
-		if (isset($post['time'])) {
-			$post['time'] = $post['time']->sec;
-		}
-		$post['status'] = $post['params']['status'];
-		unset($post['params']['status']);
+		//
+		// This is now done in Mongovel:
 		
-		$out[] = $post;
+		$out[] = $post->toArray();
 	}
 	
 	return $app->json($out);
@@ -296,8 +304,7 @@ $protected->post('/settings', function (Request $request) use ($app) {
  */
 
 $public->get('/counter', function (Request $request) use ($app) {
-	$m = new Mongo();
-	$count = $m->circular->posts->count();
+	$count = Post::count();
 	return $app->json(array('count' => $count));
 });
 

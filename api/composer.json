@@ -4,5 +4,8 @@
         "julien-c/simple-resize": "*",
         "julien-c/mongovel": "*"
     },
+    "autoload": {
+        "classmap": ["models"]
+    },
     "minimum-stability": "dev"
 }
