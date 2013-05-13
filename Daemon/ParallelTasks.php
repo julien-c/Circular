@@ -91,51 +91,32 @@ class ParallelTasks extends \Core_Daemon
 					'consumer_key'    => CONSUMER_KEY,
 					'consumer_secret' => CONSUMER_SECRET,
 					'user_token'      => $item['user']['user_token'],
-					'user_secret'     => $item['user']['user_secret']
+					'user_secret'     => $item['user']['user_secret'],
+					'v' => '1.1'
 				));
 				
 				
 				// If we're sending a picture, we need to make a multipart request:
-				if ($item['type'] == 'post_with_media') {
+				if (isset($item['picture']['url'])) {
 					$multipart = true;
 					
 					// Add inline media[] parameter if we're sending a picture:
-					// @see https://dev.twitter.com/docs/api/1/post/statuses/update_with_media
+					// @see https://dev.twitter.com/docs/api/1.1/post/statuses/update_with_media
+                                        
+					// Convert URL to local file path
+					$filepath = realpath(BASE_PATH.'/../'.str_replace(APP_URL, '', $item['picture']['url']));
+                                        
+					$item['params']['media[]'] = "@{$filepath}";
 					
-					$image = file_get_contents($item['picture']['url']);
-					
-					$filename  = basename($item['picture']['url']);
-					
-					$extension = pathinfo($filename, PATHINFO_EXTENSION);
-					$mimetypes = array(
-						'jpg'  => 'image/jpeg',
-						'jpeg' => 'image/jpeg',
-						'png'  => 'image/png',
-						'gif'  => 'image/gif'
-					);
-					if (isset($mimetypes[$extension])) {
-						$mimetype = $mimetypes[$extension];
-					}
-					else {
-						// Sensible default?
-						$mimetype = "image/jpeg";
-					}
-					
-					$item['params']['media[]'] = "$image;type=$mimetype;filename=$filename";
-					
-					$url = $item['url'];
+					$url = 'statuses/update_with_media';
 				}
 				else {
 					$multipart = false;
 					
-					$url = $tmhOAuth->url($item['url']);
+					$url = 'statuses/update';
 				}
 				
-				
-				
-				$code = $tmhOAuth->request('POST', $url, $item['params'], true, $multipart);
-				
-				
+				$code = $tmhOAuth->request('POST', $tmhOAuth->url($url), $item['params'], true, $multipart);
 				
 				if ($item['type'] == 'post_with_media') {
 					// Don't store raw binary images:

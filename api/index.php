@@ -128,13 +128,9 @@ $protected->post('/posts', function (Request $request) use ($app) {
 	
 	// Add Twitter request info:
 	if (isset($post['picture'])) {
-		// $post['url']  = '1.1/statuses/update_with_media';
-		// Until we move to API v1.1:
-		$post['url']  = 'https://upload.twitter.com/1/statuses/update_with_media.json';
 		$post['type'] = 'post_with_media';
 	}
 	else {
-		$post['url']  = '1/statuses/update';
 		$post['type'] = 'post';
 	}
 	
