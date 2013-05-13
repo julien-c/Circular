@@ -1,7 +1,8 @@
 {
     "require": {
         "silex/silex": "1.0.*",
-        "julien-c/simple-resize": "*"
+        "julien-c/simple-resize": "*",
+        "julien-c/mongovel": "*"
     },
     "minimum-stability": "dev"
 }
