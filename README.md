@@ -8,7 +8,7 @@ http://circular.io
 
 Circular is built as a Backbone.js application that communicates with a MongoDB datastore through a REST API written in PHP. 
 
-The server part, based on the [Silex](http://silex.sensiolabs.org) PHP micro-framework, is intended to be the *dumbest possible*, i.e. we tried to put most "intelligence" in the Backbone app, not in the API. (For example, the API only takes UNIX timestamps and posts' content, while the Backbone app computes the scheduled timestamps).
+The server part, based on the [Silex](http://silex.sensiolabs.org) PHP micro-framework and the [Mongovel](http://github.com/julien-c/Mongovel) wrapper to MongoDB, is intended to be the *dumbest possible*, i.e. we tried to put most "intelligence" in the Backbone app, not in the API. (For example, the API only takes UNIX timestamps and posts' content, while the Backbone app computes the scheduled timestamps).
 
 A daemon based on [PHP-Daemon](https://github.com/shaneharter/PHP-Daemon) then runs in the background and is responsible for sending your posts to Twitter when they're due.
 
