@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "f2950c4e8fdc434b70bdfffdde63d207",
+    "hash": "ffb270e29c39b284fe280d44ffead2b1",
     "packages": [
         {
             "name": "illuminate/container",
@@ -99,12 +99,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/julien-c/mongovel.git",
-                "reference": "3cc5ed90cc4f8f5d04498931507e5dcf2bfa4507"
+                "reference": "8babeae92336705ff1e00bcf7ecb30fdf57ba105"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/julien-c/mongovel/zipball/3cc5ed90cc4f8f5d04498931507e5dcf2bfa4507",
-                "reference": "3cc5ed90cc4f8f5d04498931507e5dcf2bfa4507",
+                "url": "https://api.github.com/repos/julien-c/mongovel/zipball/8babeae92336705ff1e00bcf7ecb30fdf57ba105",
+                "reference": "8babeae92336705ff1e00bcf7ecb30fdf57ba105",
                 "shasum": ""
             },
             "require": {
@@ -143,7 +143,7 @@
                 "mongo",
                 "mongodb"
             ],
-            "time": "2013-05-13 09:41:20"
+            "time": "2013-05-13 18:33:04"
         },
         {
             "name": "julien-c/simple-resize",
