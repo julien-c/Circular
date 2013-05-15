@@ -1,0 +1,23 @@
+{
+  "name": "Circular",
+  "description": "The free tweet scheduling app.",
+  "version": "1.0.3",
+  
+  "background": {
+    "scripts": [
+      "background.js"
+    ]
+  },
+  "icons": {
+    "128": "icon_128.png"
+  },
+  "browser_action": {
+    "default_title": "Add to Circular.io",
+    "default_icon": "icon_100.png"
+  },
+  "permissions": [
+  	"tabs",
+  	"*://*/*"
+  ],
+  "manifest_version": 2
+}
