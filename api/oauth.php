@@ -189,7 +189,7 @@ function verify_credentials($tmhOAuth, $id) {
 	
 	$code = $tmhOAuth->request(
 		'GET',
-		$tmhOAuth->url('1/account/verify_credentials')
+		$tmhOAuth->url('1.1/account/verify_credentials')
 	);
 	
 	if ($code == 200) {
