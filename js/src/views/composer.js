@@ -98,11 +98,12 @@ Circular.Views.Composer = Backbone.View.extend({
 	},
 	countdown: function(e){
 		if (e) {
-			var len = $(e.target).val().length;
+			var tweet = $(e.target).val();
 		}
 		else {
-			var len = this.$("#textarea").val().length;
+			var tweet = this.$("#textarea").val();
 		}
+		var len = twttr.txt.getTweetLength(tweet);
 		if (len == 0) {
 			this.$(".countdown").html("");
 		}
