@@ -108,13 +108,7 @@ Circular.Views.Composer = Backbone.View.extend({
 			this.$(".countdown").html("");
 		}
 		else {
-			this.$(".countdown").html(140 - len);
-			if (len > 130) {
-				this.$(".countdown").addClass("warning");
-			}
-			else {
-				this.$(".countdown").removeClass("warning");
-			}
+			this.$(".countdown").html(140 - len).toggleClass("warning", len > 130);
 			if (len > 140) {
 				this.$("#postnow, #addtoposts").prop("disabled", true);
 			}
