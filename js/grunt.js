@@ -24,6 +24,7 @@ module.exports = function(grunt) {
 					'vendor/mustache.js',
 					'vendor/underscore.js',
 					'vendor/backbone.js',
+					'vendor/twitter-text-1.11.0.min.js',
 					'src/bootstrap.js',
 					'src/utils.js',
 					'src/models/*.js',
