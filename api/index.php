@@ -6,7 +6,7 @@ use Symfony\Component\HttpFoundation\Response;
 require_once __DIR__.'/vendor/autoload.php';
 require_once __DIR__.'/config.php';
 
-$app = new Silex\Application();
+$app = new Silex\Application(array('debug'=>false));
 
 /***
  *
@@ -91,7 +91,7 @@ $app->before(function (Request $request) use ($app) {
 $protected->get('/posts', function () use ($app) {
 	// Retrieve all posts by users managed by current account, sorted by time ascending:
 	
-	$posts = Post::find(array('user._id' => array('$in' => $app['account']['users'])))
+	$posts = Post::find(array('user._id' => array('$in' => array_values($app['account']['users']))))
 		->sort(array('time' => 1));
 	
 	
@@ -172,9 +172,11 @@ $protected->delete('/posts/{id}', function (Request $request, $id) use ($app) {
 	$m = new Mongo();
 	$m->circular->posts->remove(array(
 		'_id'      => new MongoId($id),
-		'user._id' => array('$in' => $app['account']['users'])
+		'user._id' => array('$in' => array_values($app['account']['users']))
 	));
 	// We only delete the post if it is owned by the current user.
+
+	return new Response('Deleted', 204);
 })
 ->assert('id', '\w{24}');
 
@@ -191,7 +193,7 @@ $protected->put('/posts/{id}', function (Request $request, $id) use ($app) {
 		$m = new Mongo();
 		$post = $m->circular->posts->findOne(array(
 			'_id'      => new MongoId($id),
-			'user._id' => array('$in' => $app['account']['users'])
+			'user._id' => array('$in' => array_values($app['account']['users']))
 		));
 		// We only update the post if it is owned by the current user.
 		
@@ -223,7 +225,7 @@ $protected->post('/times', function (Request $request) use ($app) {
 		$mongoposts->update(
 			array(
 				'_id'      => new MongoId($post['id']), 
-				'user._id' => array('$in' => $app['account']['users'])
+				'user._id' => array('$in' => array_values($app['account']['users']))
 			),
 			array('$set' => array('time' => new MongoDate($post['time'])))
 		);
