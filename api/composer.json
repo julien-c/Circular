@@ -1,6 +1,6 @@
 {
     "require": {
-        "silex/silex": "1.0.*",
+        "silex/silex": "~1.3",
         "julien-c/simple-resize": "*",
         "julien-c/mongovel": "*"
     },
