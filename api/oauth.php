@@ -10,9 +10,12 @@
  */
 
 require 'config.php';
-
 require '../extlib/tmhOAuth/tmhOAuth.php';
 require '../extlib/tmhOAuth/tmhUtilities.php';
+require_once __DIR__.'/vendor/autoload.php';
+
+require './CustomSessionHandler.php';
+
 $tmhOAuth = new tmhOAuth(array(
 	'consumer_key'    => CONSUMER_KEY,
 	'consumer_secret' => CONSUMER_SECRET,
@@ -20,8 +23,10 @@ $tmhOAuth = new tmhOAuth(array(
 
 header('Content-type: application/json');
 
-session_set_cookie_params(60*60*24*30);
-ini_set('session.gc_maxlifetime', 60*60*24*30);
+$handler = new CustomSessionHandler();
+
+session_set_save_handler($handler);
+session_set_cookie_params(0);
 session_start();
 
 
@@ -98,7 +103,7 @@ function access_token($tmhOAuth) {
 		
 		$user_id = (int) $access_token['user_id'];
 		
-		$m = new Mongo();
+		$m = new MongoClient();
 		$user = $m->circular->users->findOne(array('user_id' => $user_id));
 		
 		if ($user) {
@@ -181,7 +186,7 @@ function access_token($tmhOAuth) {
 
 // Step 4: Now the user has authenticated, do something with the permanent token and secret we received
 function verify_credentials($tmhOAuth, $id) {
-	$m = new Mongo();
+	$m = new MongoClient();
 	$user = $m->circular->users->findOne(array('_id' => new MongoId($id)));
 	
 	$tmhOAuth->config['user_token']  = $user['user_token'];

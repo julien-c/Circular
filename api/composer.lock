@@ -4,9 +4,50 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "47605e963693fef87c547ed88c8574e9",
-    "content-hash": "95713e817f43761903688e31afb81fc6",
+    "hash": "f5a49e7165225ba654f4fc54a45fcd89",
+    "content-hash": "f755bb3b74d21eb6431368b78696631f",
     "packages": [
+        {
+            "name": "altmetric/mongo-session-handler",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/altmetric/mongo-session-handler.git",
+                "reference": "d943859cf7d8f1384ba8d9f8129cf977f8515eaa"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/altmetric/mongo-session-handler/zipball/d943859cf7d8f1384ba8d9f8129cf977f8515eaa",
+                "reference": "d943859cf7d8f1384ba8d9f8129cf977f8515eaa",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">= 5.4.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "4.5.*",
+                "psr/log": "1.0.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Altmetric\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Paul Mucur",
+                    "homepage": "http://mudge.name"
+                }
+            ],
+            "description": "A PHP session handler backed by MongoDB.",
+            "homepage": "https://github.com/altmetric/mongo-session-handler",
+            "time": "2015-04-14 16:17:44"
+        },
         {
             "name": "illuminate/container",
             "version": "4.2.x-dev",
