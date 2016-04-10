@@ -6,7 +6,7 @@ use Symfony\Component\HttpFoundation\Response;
 require_once __DIR__.'/vendor/autoload.php';
 require_once __DIR__.'/config.php';
 
-$app = new Silex\Application(array('debug'=>false));
+$app = new Silex\Application(['debug' => true]);
 
 /***
  *
@@ -134,7 +134,7 @@ $protected->post('/posts', function (Request $request) use ($app) {
 	}
 	
 	// Add user information:
-	$m = new Mongo();
+	$m = new MongoClient();
 	$user = $m->circular->users->findOne(array('_id' => new MongoId($post['user'])));
 	$post['user'] = $user;
 	
@@ -153,7 +153,7 @@ $protected->post('/posts', function (Request $request) use ($app) {
 	// @see http://stackoverflow.com/questions/6351271/backbone-js-get-and-set-nested-object-attribute
 	
 	
-	$m = new Mongo();
+	$m = new MongoClient();
 	
 	if (isset($post['time']) && $post['time'] == "now") {
 		// If explicitly requested, send it right now through `queue`:
@@ -174,7 +174,7 @@ $protected->post('/posts', function (Request $request) use ($app) {
 $protected->delete('/posts/{id}', function (Request $request, $id) use ($app) {
 	// According to the assert, this looks like a valid MongoId
 	
-	$m = new Mongo();
+	$m = new MongoClient();
 	$m->circular->posts->remove(array(
 		'_id'      => new MongoId($id),
 		'user._id' => array('$in' => array_values($app['account']['users']))
@@ -187,7 +187,7 @@ $protected->delete('/posts/{id}', function (Request $request, $id) use ($app) {
 
 
 
-$protected->put('/posts/{id}', function (Request $request, $id) use ($app) {
+$protected->put('/api/posts/{id}', function (Request $request, $id) use ($app) {
 	
 	$put = $app['data'];
 	
@@ -195,7 +195,7 @@ $protected->put('/posts/{id}', function (Request $request, $id) use ($app) {
 	
 	if (isset($put['time']) && $put['time'] == "now") {
 		
-		$m = new Mongo();
+		$m = new MongoClient();
 		$post = $m->circular->posts->findOne(array(
 			'_id'      => new MongoId($id),
 			'user._id' => array('$in' => array_values($app['account']['users']))
@@ -219,11 +219,11 @@ $protected->put('/posts/{id}', function (Request $request, $id) use ($app) {
  *
  */
 
-$protected->post('/times', function (Request $request) use ($app) {
+$protected->post('/api/times', function (Request $request) use ($app) {
 	
 	$posts = $app['data']['posts'];
 	
-	$m = new Mongo();
+	$m = new MongoClient();
 	$mongoposts = $m->circular->posts;
 	
 	foreach ($posts as $post) {
@@ -248,7 +248,7 @@ $protected->post('/times', function (Request $request) use ($app) {
  *
  */
 
-$protected->post('/upload', function (Request $request) use ($app) {
+$protected->post('/api/upload', function (Request $request) use ($app) {
 	$file = $request->files->get('userfile');
 	if ($file->isValid()) {
 		$extension = $file->guessExtension();
@@ -277,16 +277,16 @@ $protected->post('/upload', function (Request $request) use ($app) {
  *
  */
 
-$protected->get('/settings', function (Request $request) use ($app) {
+$protected->get('/api/settings', function (Request $request) use ($app) {
 	$account = Account::findOne(array('_id' => new MongoId($app['account']['id'])));
 	unset($account->users);
 	return $app->json($account->toArray());
 });
 
-$protected->post('/settings', function (Request $request) use ($app) {
+$protected->post('/api/settings', function (Request $request) use ($app) {
 	$email = $app['data']['email'];
 	
-	$m = new Mongo();
+	$m = new MongoClient();
 	if ($email) {
 		$m->circular->accounts->update(
 			array('_id'  => new MongoId($app['account']['id'])),
@@ -309,9 +309,9 @@ $protected->post('/settings', function (Request $request) use ($app) {
  *
  */
 
-$public->get('/counter', function (Request $request) use ($app) {
+$public->get('/api/counter', function (Request $request) use ($app) {
 	$count = Post::count();
-	return $app->json(array('count' => $count));
+	return $app->json(['count' => $count]);
 });
 
 
