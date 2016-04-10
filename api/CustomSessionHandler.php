@@ -15,5 +15,12 @@ class CustomSessionHandler extends MongoSessionHandler {
 		// NOOP
 		return;
 	}
-
+	
+	
+	
+	public function setup() {
+		session_set_save_handler($this);
+		session_set_cookie_params(0);
+		session_start();
+	}
 }

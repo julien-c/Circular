@@ -14,7 +14,6 @@ require '../extlib/tmhOAuth/tmhOAuth.php';
 require '../extlib/tmhOAuth/tmhUtilities.php';
 require_once __DIR__.'/vendor/autoload.php';
 
-require './CustomSessionHandler.php';
 
 $tmhOAuth = new tmhOAuth(array(
 	'consumer_key'    => CONSUMER_KEY,
@@ -23,11 +22,9 @@ $tmhOAuth = new tmhOAuth(array(
 
 header('Content-type: application/json');
 
-$handler = new CustomSessionHandler();
+(new CustomSessionHandler)->setup();
 
-session_set_save_handler($handler);
-session_set_cookie_params(0);
-session_start();
+
 
 
 function outputError($tmhOAuth) {

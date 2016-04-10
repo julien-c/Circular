@@ -6,6 +6,9 @@ use Symfony\Component\HttpFoundation\Response;
 require_once __DIR__.'/vendor/autoload.php';
 require_once __DIR__.'/config.php';
 
+
+
+
 $app = new Silex\Application(['debug' => true]);
 
 /***
@@ -52,9 +55,9 @@ $protected = $app['controllers_factory'];
 
 $protected->before(function (Request $request) use ($app) {
 	// `Protected` endpoints require authentication:
-	session_set_cookie_params(60*60*24*30);
-	ini_set('session.gc_maxlifetime', 60*60*24*30);
-	session_start();
+	
+	(new CustomSessionHandler)->setup();
+	
 	if (!isset($_SESSION['account'])) {
 		return new Response('Unauthorized', 401);
 	}
@@ -93,7 +96,7 @@ $app->before(function (Request $request) use ($app) {
  *
  */
 
-$protected->get('/posts', function () use ($app) {
+$protected->get('/api/posts', function () use ($app) {
 	// Retrieve all posts by users managed by current account, sorted by time ascending:
 	
 	$posts = Post::find(array('user._id' => array('$in' => array_values($app['account']['users']))))
@@ -124,7 +127,7 @@ $protected->get('/posts', function () use ($app) {
 
 
 
-$protected->post('/posts', function (Request $request) use ($app) {
+$protected->post('/api/posts', function (Request $request) use ($app) {
 	
 	$post = $app['data'];
 	
@@ -171,7 +174,7 @@ $protected->post('/posts', function (Request $request) use ($app) {
 
 
 
-$protected->delete('/posts/{id}', function (Request $request, $id) use ($app) {
+$protected->delete('/api/posts/{id}', function (Request $request, $id) use ($app) {
 	// According to the assert, this looks like a valid MongoId
 	
 	$m = new MongoClient();
