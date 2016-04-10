@@ -16,7 +16,12 @@ $app = new Silex\Application(array('debug'=>false));
 
 $container = new Illuminate\Container\Container;
 $container->singleton('mongoveldb', function() {
-	return new Mongovel\DB('mongodb://localhost', 'circular');
+	$d = new Mongovel\DB('mongodb://localhost', 'circular', [
+		'host' => 'localhost',
+		'port' => 27017,
+	]);
+	unset($d->options['server']);
+	return $d;
 });
 
 Mongovel\Mongovel::setContainer($container);
