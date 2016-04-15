@@ -26,7 +26,14 @@ $container->singleton('mongoveldb', function() {
 	unset($d->options['server']);
 	return $d;
 });
-
+class Config {
+	public function get($s) {
+		return false;
+	}
+}
+$container->singleton('config', function() {
+	return new Config;
+});
 Mongovel\Mongovel::setContainer($container);
 
 
@@ -67,10 +74,10 @@ $protected->before(function (Request $request) use ($app) {
 	foreach ($_SESSION['account']['users'] as $id => $value) {
 		$users[$id] = new MongoId($id);
 	}
-	$app['account'] = array(
+	$app['account'] = [
 		'id'    => $_SESSION['account']['id'],
-		'users' => $users
-	);
+		'users' => $users,
+	];
 });
 
 
@@ -240,7 +247,7 @@ $protected->post('/api/times', function (Request $request) use ($app) {
 		// We only update the post if it is owned by the current user.	
 	}
 	
-	return $app->json(array("success" => true));
+	return $app->json(["success" => true]);
 });
 
 
@@ -302,6 +309,8 @@ $protected->post('/api/settings', function (Request $request) use ($app) {
 			array('$unset' => array('email' => true))
 		);
 	}
+	
+	return $app->json(["success" => true]);
 });
 
 
