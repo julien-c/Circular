@@ -157,6 +157,8 @@ class ParallelTasks extends \Core_Daemon
 						(string) $code,
 						$item['response']['error']
 					), "warning");
+					
+					$this->log($tmhOAuth->response['response'], 'warning');
 				}
 				
 			}
