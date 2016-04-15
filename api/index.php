@@ -218,6 +218,8 @@ $protected->put('/api/posts/{id}', function (Request $request, $id) use ($app) {
 			$m->circular->posts->remove(array('_id' => $post['_id']));
 		}
 	}
+	
+	return $app->json(["success" => true]);
 })
 ->assert('id', '\w{24}');
 
