@@ -9,3 +9,5 @@ uploads/
 
 api/vendor/
 api/oauth-fake.php
+
+node_modules/
