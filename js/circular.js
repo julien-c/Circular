@@ -5888,6 +5888,7 @@ Circular.Views.Composer = Backbone.View.extend({
 		$(".dropzone").filedrop({
 			url: "api/upload",
 			allowedfiletypes: ['image/jpeg','image/png','image/gif'],
+			maxfilesize: 8,
 			dragOver: function(){ 
 				$(this).addClass("over");
 			},
