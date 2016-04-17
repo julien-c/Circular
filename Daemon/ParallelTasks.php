@@ -151,11 +151,10 @@ class ParallelTasks extends \Core_Daemon
 				}
 				else {
 					$this->log(sprintf(
-						"Failed sending `%s` %s to Twitter, error code %s: %s",
+						"Failed sending `%s` %s to Twitter, error code %s",
 						$item['type'], 
 						$item['_id'], 
-						(string) $code,
-						$item['response']['error']
+						(string) $code
 					), "warning");
 					
 					$this->log($tmhOAuth->response['response'], 'warning');
