@@ -9,7 +9,7 @@ require BASE_PATH . '/../api/config.php';
 
 class ParallelTasks extends \Core_Daemon
 {
-	protected  $loop_interval = 5;
+	protected  $loop_interval = 10;
 
 	/**
 	 * The only plugin we're using is a simple file-based lock to prevent 2 instances from running
@@ -41,7 +41,7 @@ class ParallelTasks extends \Core_Daemon
 		
 		
 		
-		$m = new \Mongo();
+		$m = new \MongoClient();
 		
 		
 		// Step 1: move to the sending queue (`queue`) all requests -- posts (`posts`) and follows (`follows`) -- that were scheduled to be sent before now.
@@ -105,8 +105,8 @@ class ParallelTasks extends \Core_Daemon
                                         
 					// Convert URL to local file path
 					$filepath = realpath(BASE_PATH.'/../'.str_replace(APP_URL, '', $item['picture']['url']));
-                                        
-					$item['params']['media[]'] = "@{$filepath}";
+					
+					$item['params']['media[]'] = file_get_contents($filepath);  // or use CurlFile()
 					
 					$url = 'statuses/update_with_media';
 				}
@@ -133,7 +133,7 @@ class ParallelTasks extends \Core_Daemon
 				// Move this item to another collection named archive:
 				unset($item['processing']);
 				unset($item['processing_since']);
-				$m = new \Mongo();
+				$m = new \MongoClient();
 				
 				$archives = array('post' => 'archive', 'follow' => 'archive-follows', 'post_with_media' => 'archive');
 				$archive = $archives[$item['type']];
